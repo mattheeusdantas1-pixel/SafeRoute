@@ -15,3 +15,6 @@
 local.properties
 google-services.json
 .kotlin
+CLAUDE.md
+.claude/
+docs/REFERENCIA-PRATICAS.md
