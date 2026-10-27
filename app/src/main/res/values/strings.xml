@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">SafeRoute</string>
+
+    <!-- Abas da barra inferior -->
+    <string name="aba_inicio">Início</string>
+    <string name="aba_trajeto">Trajeto</string>
+    <string name="aba_contatos">Contatos</string>
+    <string name="aba_historico">Histórico</string>
+    <string name="aba_perfil">Perfil</string>
+
+    <!-- Textos provisórios da fase 1 (as telas de verdade vêm nas próximas fases) -->
+    <string name="titulo_sos">SOS</string>
+    <string name="pagina_em_construcao">Tela em construção</string>
+    <string name="botao_sos">SOS</string>
+    <string name="voltar">Voltar</string>
+    <string name="ola_usuario">Olá, %1$s</string>
+</resources>
