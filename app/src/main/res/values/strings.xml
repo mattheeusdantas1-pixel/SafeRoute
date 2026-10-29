@@ -38,4 +38,26 @@
     <string name="erro_nome_vazio">Digite seu nome</string>
     <string name="erro_senha_curta">A senha precisa ter pelo menos 6 caracteres</string>
     <string name="erro_senhas_diferentes">As senhas não são iguais</string>
+
+    <!-- Contatos -->
+    <string name="contatos_titulo">Contatos de confiança</string>
+    <string name="contatos_contador">%1$d/%2$d</string>
+    <string name="contatos_vazio">Nenhum contato ainda. Adicione alguém para receber seus alertas.</string>
+    <string name="contatos_limite">Você já tem o máximo de 5 contatos.</string>
+    <string name="botao_adicionar_contato">Adicionar contato</string>
+    <string name="contato_dialog_titulo">Novo contato</string>
+    <string name="campo_parentesco">Parentesco (opcional)</string>
+    <string name="campo_email">E-mail (opcional)</string>
+    <string name="botao_salvar">Salvar</string>
+    <string name="botao_cancelar">Cancelar</string>
+    <string name="botao_remover">Remover</string>
+    <string name="fechar">Fechar</string>
+    <string name="remover_contato_desc">Remover %1$s</string>
+    <string name="remover_contato_titulo">Remover contato?</string>
+    <string name="remover_contato_texto">%1$s não vai mais receber seus alertas de SOS.</string>
+    <string name="contato_adicionado">Contato adicionado!</string>
+    <string name="contato_removido">Contato removido</string>
+    <string name="erro_limite_contatos">Limite de 5 contatos atingido</string>
+    <string name="erro_nome_contato_vazio">Digite o nome do contato</string>
+    <string name="erro_telefone_repetido">Esse telefone já está na sua lista</string>
 </resources>

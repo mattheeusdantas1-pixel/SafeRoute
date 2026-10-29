@@ -3,6 +3,7 @@ package com.example.saferoute
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import com.example.saferoute.model.AlertaSos
 import com.example.saferoute.model.Contato
@@ -12,6 +13,9 @@ import com.example.saferoute.model.Usuario
 
 private const val MINUTO = 60_000L
 private const val HORA = 60 * MINUTO
+
+// RN01: no máximo 5 contatos de confiança
+const val MAX_CONTATOS = 5
 
 // Dados de exemplo para as telas não abrirem vazias na demo
 private fun contatosExemplo() = listOf(
@@ -36,14 +40,54 @@ private fun historicoExemplo(): List<Trajeto> {
 }
 
 class MainViewModel : ViewModel() {
+    // ===== CONTA E CONTATOS =====
+
     // "private set": a tela pode ler, mas só o ViewModel pode mudar.
     // Como é mutableStateOf, toda tela que lê o valor se redesenha quando ele muda.
     // Usuária de exemplo; o login troca pelos dados digitados (definirUsuario)
     var usuario by mutableStateOf(Usuario(nome = "Ana", telefone = "81999990000"))
         private set
 
-    var contatos by mutableStateOf(contatosExemplo())
-        private set
+    // Mesmo esquema das cidades da Prática 03: a lista de verdade é privada
+    // e a tela só recebe uma cópia, então ninguém mexe nela por fora do ViewModel
+    private val _contatos = contatosExemplo().toMutableStateList()
+    val contatos
+        get() = _contatos.toList()
+
+    // Chamado pela MainActivity com os dados que vieram do login
+    fun definirUsuario(nome: String, telefone: String) {
+        usuario = usuario.copy(nome = nome, telefone = telefone)
+    }
+
+    // Devolve null se adicionou; se não, o id da mensagem de erro (R.string...)
+    fun adicionarContato(nome: String, telefone: String, parentesco: String, email: String): Int? {
+        val erro = when {
+            _contatos.size >= MAX_CONTATOS -> R.string.erro_limite_contatos   // RN01
+            nome.isBlank() -> R.string.erro_nome_contato_vazio
+            validarTelefone(telefone) != null -> R.string.erro_telefone      // RN02
+            // RN03: o mesmo telefone duas vezes mandaria o alerta repetido
+            _contatos.any { it.telefone == telefone } -> R.string.erro_telefone_repetido
+            else -> null
+        }
+        if (erro == null) {
+            _contatos.add(
+                Contato(
+                    nome = nome.trim(),
+                    telefone = telefone,
+                    // Campos opcionais: em branco vira null, para a tela saber que não tem
+                    parentesco = parentesco.trim().ifBlank { null },
+                    email = email.trim().ifBlank { null }
+                )
+            )
+        }
+        return erro
+    }
+
+    fun removerContato(contato: Contato) {
+        _contatos.remove(contato)
+    }
+
+    // ===== TRAJETO, SOS E HISTÓRICO =====
 
     // null = nenhum trajeto ativo agora
     var trajetoAtual by mutableStateOf<Trajeto?>(null)
@@ -59,9 +103,4 @@ class MainViewModel : ViewModel() {
 
     var historico by mutableStateOf(historicoExemplo())
         private set
-
-    // Chamado pela MainActivity com os dados que vieram do login
-    fun definirUsuario(nome: String, telefone: String) {
-        usuario = usuario.copy(nome = nome, telefone = telefone)
-    }
 }
