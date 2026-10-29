@@ -14,4 +14,28 @@
     <string name="botao_sos">SOS</string>
     <string name="voltar">Voltar</string>
     <string name="ola_usuario">Olá, %1$s</string>
+
+    <!-- Login e Cadastro -->
+    <string name="login_titulo">Bem-vindo/a!</string>
+    <string name="cadastro_titulo">Crie sua conta</string>
+    <string name="cadastro_label">Cadastro</string>
+    <string name="campo_nome">Nome</string>
+    <string name="campo_telefone">Telefone com DDD</string>
+    <string name="exemplo_telefone">(81) 98888-7777</string>
+    <string name="campo_senha">Senha</string>
+    <string name="campo_confirmar_senha">Confirmar senha</string>
+    <string name="mostrar_senha">Mostrar senha</string>
+    <string name="ocultar_senha">Ocultar senha</string>
+    <string name="botao_entrar">Entrar</string>
+    <string name="botao_limpar">Limpar</string>
+    <string name="botao_registrar">Registrar</string>
+    <string name="botao_confirmar">Confirmar</string>
+    <string name="login_ok">Login realizado!</string>
+    <string name="cadastro_ok">Cadastro realizado com sucesso!</string>
+
+    <!-- Mensagens de erro das validações -->
+    <string name="erro_telefone">O telefone precisa ter 10 ou 11 dígitos, com DDD</string>
+    <string name="erro_nome_vazio">Digite seu nome</string>
+    <string name="erro_senha_curta">A senha precisa ter pelo menos 6 caracteres</string>
+    <string name="erro_senhas_diferentes">As senhas não são iguais</string>
 </resources>
