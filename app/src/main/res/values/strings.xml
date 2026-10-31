@@ -60,4 +60,13 @@
     <string name="erro_limite_contatos">Limite de 5 contatos atingido</string>
     <string name="erro_nome_contato_vazio">Digite o nome do contato</string>
     <string name="erro_telefone_repetido">Esse telefone já está na sua lista</string>
+
+    <!-- Perfil (conta) -->
+    <string name="conta_titulo">Meu perfil</string>
+    <string name="conta_telefone_info">O telefone não pode ser alterado</string>
+    <string name="conta_nome_salvo">Nome atualizado!</string>
+    <string name="conta_gesto_sacudir">Sacudir o celular para pedir SOS</string>
+    <string name="conta_modo_escuro">Modo escuro</string>
+    <string name="conta_botao_sair">Sair da conta</string>
+    <string name="conta_saiu">Você saiu da conta</string>
 </resources>

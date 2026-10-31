@@ -54,9 +54,32 @@ class MainViewModel : ViewModel() {
     val contatos
         get() = _contatos.toList()
 
+    // Modo escuro escolhido no Perfil. Por enquanto só guarda a escolha;
+    // o tema ainda não usa esse valor
+    var modoEscuro by mutableStateOf(false)
+        private set
+
     // Chamado pela MainActivity com os dados que vieram do login
     fun definirUsuario(nome: String, telefone: String) {
         usuario = usuario.copy(nome = nome, telefone = telefone)
+    }
+
+    // RF03: editar o nome no Perfil. Devolve null se salvou; se não, o id do erro
+    fun alterarNome(nome: String): Int? {
+        val erro = if (nome.isBlank()) R.string.erro_nome_vazio else null
+        if (erro == null) {
+            usuario = usuario.copy(nome = nome.trim())
+        }
+        return erro
+    }
+
+    // RF19: liga/desliga o gesto de sacudir o celular para pedir SOS
+    fun alterarGestoSacudir(ativo: Boolean) {
+        usuario = usuario.copy(gestoSacudirAtivo = ativo)
+    }
+
+    fun alterarModoEscuro(ativo: Boolean) {
+        modoEscuro = ativo
     }
 
     // Devolve null se adicionou; se não, o id da mensagem de erro (R.string...)
