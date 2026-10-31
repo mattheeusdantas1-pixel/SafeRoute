@@ -73,4 +73,41 @@
 
     <!-- Mensagem exibida quando o histórico está vazio -->
     <string name="historico_vazio">Nenhum trajeto ainda</string>
+
+    <!-- Início -->
+    <string name="inicio_dica_sos">Em uma emergência, toque no botão SOS</string>
+    <string name="inicio_resumo_contatos">Contatos de confiança: %1$d/%2$d</string>
+    <string name="inicio_trajeto_ativo">Trajeto em andamento</string>
+    <string name="inicio_trajeto_nenhum">Nenhum trajeto em andamento</string>
+
+    <!-- Trajeto -->
+    <string name="trajeto_titulo">Meu trajeto</string>
+    <string name="trajeto_campo_destino">Destino (opcional)</string>
+    <string name="trajeto_campo_minutos">Chego em quantos minutos?</string>
+    <string name="trajeto_iniciar">Iniciar trajeto</string>
+    <string name="trajeto_cheguei">Cheguei bem</string>
+    <string name="trajeto_sem_destino">Sem destino</string>
+    <string name="trajeto_decorrido">Tempo decorrido: %1$s</string>
+    <string name="trajeto_restante">Tempo restante: %1$s</string>
+    <string name="trajeto_distancia">Distância (simulada): %1$s km</string>
+    <string name="trajeto_checkin_titulo">Chegou bem?</string>
+    <string name="trajeto_checkin_texto">O horário previsto passou. Se você não responder, o SOS será acionado.</string>
+    <string name="trajeto_mais_15">Mais 15 min</string>
+    <string name="erro_trajeto_ja_ativo">Você já tem um trajeto em andamento</string>
+    <string name="erro_horario_passado">Digite um tempo maior que zero</string>
+    <string name="erro_limite_adiamentos">Você já adiou 3 vezes, não dá para adiar mais</string>
+
+    <!-- SOS -->
+    <string name="sos_enviando_em">O SOS será enviado em</string>
+    <string name="sos_segundos">%1$d s</string>
+    <string name="sos_cancelar">Cancelar SOS</string>
+    <string name="sos_ativo">SOS ativo</string>
+    <string name="sos_envios">Mensagens enviadas: %1$d</string>
+    <string name="sos_mensagem">Mensagem: SOS! Preciso de ajuda. Minha localização: %1$s</string>
+    <string name="sos_ligar_190">Ligar 190 (Polícia)</string>
+    <string name="sos_ligar_192">Ligar 192 (SAMU)</string>
+    <string name="sos_encerrar">Encerrar SOS</string>
+    <string name="sos_encerrar_titulo">Encerrar o SOS?</string>
+    <string name="sos_encerrar_texto">Seus contatos deixam de receber mensagens. Confirme só se você estiver segura.</string>
+    <string name="erro_sos_sem_contatos">Cadastre pelo menos um contato de confiança antes de usar o SOS</string>
 </resources>
