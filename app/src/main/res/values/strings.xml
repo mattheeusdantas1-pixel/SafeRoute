@@ -60,4 +60,7 @@
     <string name="erro_limite_contatos">Limite de 5 contatos atingido</string>
     <string name="erro_nome_contato_vazio">Digite o nome do contato</string>
     <string name="erro_telefone_repetido">Esse telefone já está na sua lista</string>
+
+    <!-- Mensagem exibida quando o histórico está vazio -->
+    <string name="historico_vazio">Nenhum trajeto ainda</string>
 </resources>
