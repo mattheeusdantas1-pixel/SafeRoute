@@ -27,7 +27,7 @@ fun MainNavHost(
         composable<Route.Inicio> {
             InicioPage(modifier = modifier, viewModel = viewModel, onSosClick = abrirSos)
         }
-        composable<Route.Trajeto> { TrajetoPage(modifier = modifier, viewModel = viewModel) }
+        composable<Route.Trajeto> { TrajetoPage(modifier = modifier, viewModel = viewModel, onSosClick = abrirSos) }
         composable<Route.Contatos> { ContatosPage(modifier = modifier, viewModel = viewModel) }
         composable<Route.Historico> { HistoricoPage(modifier = modifier, viewModel = viewModel) }
         composable<Route.Perfil> { PerfilPage(modifier = modifier, viewModel = viewModel) }
