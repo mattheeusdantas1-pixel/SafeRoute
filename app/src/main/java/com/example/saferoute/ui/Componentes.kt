@@ -1,19 +1,25 @@
 package com.example.saferoute.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -142,7 +148,38 @@ fun MensagemErro(erro: Int?, modifier: Modifier = Modifier) {
     }
 }
 
-// Ações positivas (iniciar, cheguei bem): Verde-água nos dois modos, com texto escuro para dar contraste
+// Ações positivas (iniciar, cheguei bem): Verde-água nos dois modos, com texto escuro para dar contraste.
+// O desabilitado padrão do Material fica quase invisível, então usa as cores de superfície do tema
 @Composable
 fun coresBotaoPositivo(): ButtonColors =
-    ButtonDefaults.buttonColors(containerColor = VerdeAgua, contentColor = NoitePetroleo)
+    ButtonDefaults.buttonColors(
+        containerColor = VerdeAgua,
+        contentColor = NoitePetroleo,
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+// Vai dentro do botão: o cadeado mostra que ele está desabilitado sem depender só da cor
+@Composable
+fun CadeadoDesabilitado(habilitado: Boolean) {
+    if (!habilitado) {
+        Icon(Icons.Outlined.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(modifier = Modifier.size(8.dp))
+    }
+}
+
+// Ação secundária (limpar, sair, remover): sem vermelho, com borda forte para aparecer nos dois modos
+@Composable
+fun BotaoContorno(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    conteudo: @Composable RowScope.() -> Unit
+) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+        content = conteudo
+    )
+}
