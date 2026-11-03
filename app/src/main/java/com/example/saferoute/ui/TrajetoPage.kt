@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,9 +39,7 @@ import com.example.saferoute.MAX_ADIAMENTOS
 import com.example.saferoute.METROS_POR_MINUTO
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
-import com.example.saferoute.ui.theme.Nevoa
 import com.example.saferoute.ui.theme.NoitePetroleo
-import com.example.saferoute.ui.theme.Petroleo
 import com.example.saferoute.ui.theme.VerdeAgua
 import kotlinx.coroutines.delay
 import java.util.Locale
@@ -90,7 +87,7 @@ fun TrajetoPage(
 
     Column(
         modifier = modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
             text = stringResource(R.string.trajeto_titulo),
@@ -140,7 +137,7 @@ fun TrajetoPage(
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Card de cima: o que mais importa, quanto falta
-                    Card(modifier = Modifier.fillMaxWidth(), colors = coresCardTrajeto()) {
+                    Card(modifier = Modifier.fillMaxWidth(), colors = coresCard()) {
                         Column(
                             modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -159,7 +156,7 @@ fun TrajetoPage(
                     // Card de baixo: detalhes do trajeto (o padding garante um respiro entre os cards)
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                        colors = coresCardTrajeto()
+                        colors = coresCard()
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
@@ -205,11 +202,6 @@ fun TrajetoPage(
         }
     }
 }
-
-// Petróleo nos dois modos, igual ao card de resumo do Início
-@Composable
-private fun coresCardTrajeto() =
-    CardDefaults.cardColors(containerColor = Petroleo, contentColor = Nevoa)
 
 // Curva contínua = o caminho (psicologia das formas). É só desenho, não é mapa nem GPS.
 // As posições são frações da largura e da altura, por isso ela acompanha qualquer tamanho de tela.

@@ -17,13 +17,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,13 +41,10 @@ import com.example.saferoute.MAX_CONTATOS
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
 import com.example.saferoute.model.Contato
-import com.example.saferoute.ui.theme.Nevoa
 import com.example.saferoute.ui.theme.NoitePetroleo
-import com.example.saferoute.ui.theme.Petroleo
 import com.example.saferoute.ui.theme.VerdeAgua
 
-// Card em retângulo arredondado (forma "estável", da aula de IHC).
-// Petróleo nos dois modos, igual aos cards do Início e do Trajeto.
+// Card em retângulo arredondado (forma "estável", da aula de IHC)
 @Composable
 fun ContatoCard(
     contato: Contato,
@@ -56,7 +52,7 @@ fun ContatoCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Petroleo, contentColor = Nevoa),
+        colors = coresCard(),
         modifier = modifier.fillMaxWidth().padding(vertical = 4.dp)
     ) {
         Row(
@@ -112,7 +108,7 @@ fun ContatosPage(
         ) {
             Text(
                 text = stringResource(R.string.contatos_titulo),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.weight(1f)
             )
             Text(
@@ -120,7 +116,8 @@ fun ContatosPage(
                 style = MaterialTheme.typography.titleLarge
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        // 12 + os 4dp do próprio card dão os mesmos 16dp das outras telas
+        Spacer(modifier = Modifier.height(12.dp))
 
         if (contatos.isEmpty()) {
             Text(
@@ -155,7 +152,7 @@ fun ContatosPage(
             modifier = Modifier.fillMaxWidth().height(56.dp),
             colors = coresBotaoPositivo()
         ) {
-            Icon(Icons.Filled.Add, contentDescription = null)
+            Icon(Icons.Outlined.Add, contentDescription = null)
             Spacer(modifier = Modifier.size(8.dp))
             Text(stringResource(R.string.botao_adicionar_contato), style = MaterialTheme.typography.titleMedium)
         }
@@ -182,7 +179,12 @@ fun ContatosPage(
             onDismissRequest = { idParaRemover = null },
             shape = MaterialTheme.shapes.large,
             title = { Text(stringResource(R.string.remover_contato_titulo)) },
-            text = { Text(stringResource(R.string.remover_contato_texto, contatoParaRemover.nome)) },
+            text = {
+                Text(
+                    text = stringResource(R.string.remover_contato_texto, contatoParaRemover.nome),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            },
             confirmButton = {
                 // Sem vermelho: remover contato é ação comum, o vermelho fica só para SOS e alertas
                 BotaoContorno(
@@ -192,12 +194,12 @@ fun ContatosPage(
                         Toast.makeText(activity, R.string.contato_removido, Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text(stringResource(R.string.botao_remover))
+                    Text(stringResource(R.string.botao_remover), style = MaterialTheme.typography.titleMedium)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { idParaRemover = null }) {
-                    Text(stringResource(R.string.botao_cancelar))
+                    Text(stringResource(R.string.botao_cancelar), style = MaterialTheme.typography.titleMedium)
                 }
             }
         )

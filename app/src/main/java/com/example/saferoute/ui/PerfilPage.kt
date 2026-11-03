@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -168,7 +168,7 @@ fun PerfilPage(
             },
             modifier = Modifier.padding(top = 16.dp).fillMaxWidth().height(56.dp)
         ) {
-            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null)
+            Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = null)
             Spacer(modifier = Modifier.size(8.dp))
             Text(stringResource(R.string.conta_botao_sair), style = MaterialTheme.typography.titleMedium)
         }

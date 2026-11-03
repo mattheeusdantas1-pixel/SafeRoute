@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,7 +64,7 @@ fun ContatoDialog(
                         style = MaterialTheme.typography.titleLarge
                     )
                     IconButton(onClick = { onDismiss() }) {
-                        Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.fechar))
+                        Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.fechar))
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))

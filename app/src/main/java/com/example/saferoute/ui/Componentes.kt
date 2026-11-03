@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,13 +32,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.saferoute.R
+import com.example.saferoute.ui.theme.Nevoa
 import com.example.saferoute.ui.theme.NoitePetroleo
+import com.example.saferoute.ui.theme.Petroleo
+import com.example.saferoute.ui.theme.SosVermelho
 import com.example.saferoute.ui.theme.VerdeAgua
 
 // Tela provisória: título + "em construção" + o que mais a tela quiser pôr embaixo
@@ -117,7 +123,7 @@ fun PasswordField(
         trailingIcon = {
             IconButton(onClick = { visivel = !visivel }) {
                 Icon(
-                    imageVector = if (visivel) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                    imageVector = if (visivel) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
                     contentDescription = stringResource(
                         if (visivel) R.string.ocultar_senha else R.string.mostrar_senha
                     )
@@ -147,6 +153,17 @@ fun MensagemErro(erro: Int?, modifier: Modifier = Modifier) {
         }
     }
 }
+
+// Card Petróleo com texto Névoa nos dois modos, igual em todas as telas
+@Composable
+fun coresCard(): CardColors =
+    CardDefaults.cardColors(containerColor = Petroleo, contentColor = Nevoa)
+
+// Só para SOS e ligações de emergência. Usa SosVermelho direto porque o colorScheme.error
+// do modo escuro é mais claro de propósito, e o texto branco dá contraste nos dois modos
+@Composable
+fun coresBotaoSos(): ButtonColors =
+    ButtonDefaults.buttonColors(containerColor = SosVermelho, contentColor = Color.White)
 
 // Ações positivas (iniciar, cheguei bem): Verde-água nos dois modos, com texto escuro para dar contraste.
 // O desabilitado padrão do Material fica quase invisível, então usa as cores de superfície do tema

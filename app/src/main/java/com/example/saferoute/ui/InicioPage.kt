@@ -7,7 +7,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,9 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Route
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -35,14 +35,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.saferoute.MAX_CONTATOS
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
-import com.example.saferoute.ui.theme.Nevoa
 import com.example.saferoute.ui.theme.NoitePetroleo
-import com.example.saferoute.ui.theme.Petroleo
 import com.example.saferoute.ui.theme.SosVermelho
 import com.example.saferoute.ui.theme.VerdeAgua
 
@@ -54,76 +52,86 @@ fun InicioPage(
 ) {
     val activity = LocalActivity.current as Activity
 
-    // SpaceBetween joga o SOS para baixo (zona do polegar).
-    // A rolagem é só para telas pequenas, onde o conteúdo não caberia inteiro.
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text(
-                text = stringResource(R.string.ola_usuario, viewModel.usuario.nome),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            CardResumo(
-                totalContatos = viewModel.contatos.size,
-                trajetoAtivo = viewModel.trajetoAtual != null
-            )
-        }
+    // BoxWithConstraints informa a altura disponível: o SOS encolhe em tela baixa,
+    // porque ele nunca pode ficar cortado ou escondido atrás de uma rolagem
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val tamanhoSos = (maxHeight * 0.4f).coerceIn(120.dp, 200.dp)
+        // Em tela muito baixa a dica sai para sobrar lugar para a saudação e o resumo
+        val telaBaixa = maxHeight < 360.dp
 
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BotaoSos(
-                onClick = {
-                    // RN05: sem contatos o ViewModel devolve o erro e a tela de SOS não abre
-                    val erro = viewModel.acionarSos()
-                    if (erro != null) {
-                        Toast.makeText(activity, erro, Toast.LENGTH_LONG).show()
-                    } else {
-                        onSosClick()
-                    }
-                }
-            )
+            // weight: esta parte fica com o que sobrar e, se não couber, ela é que rola
+            Column(
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.ola_usuario, viewModel.usuario.nome),
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            Text(
-                text = stringResource(R.string.inicio_dica_sos),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
+                CardResumo(
+                    totalContatos = viewModel.contatos.size,
+                    trajetoAtivo = viewModel.trajetoAtual != null
+                )
+            }
+
+            // Fora da rolagem: o SOS fica sempre embaixo, na zona do polegar
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                BotaoSos(
+                    tamanho = tamanhoSos,
+                    onClick = {
+                        // RN05: sem contatos o ViewModel devolve o erro e a tela de SOS não abre
+                        val erro = viewModel.acionarSos()
+                        if (erro != null) {
+                            Toast.makeText(activity, erro, Toast.LENGTH_LONG).show()
+                        } else {
+                            onSosClick()
+                        }
+                    }
+                )
+
+                if (!telaBaixa) {
+                    Text(
+                        text = stringResource(R.string.inicio_dica_sos),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }
 
 // Círculo grande com dois anéis em volta: é a forma mais fácil de achar numa emergência.
-// Usa SosVermelho direto porque o colorScheme.error do modo escuro é mais claro de propósito.
+// Os anéis são proporcionais ao botão, para acompanhar quando ele encolhe.
 @Composable
-private fun BotaoSos(onClick: () -> Unit) {
+private fun BotaoSos(tamanho: Dp, onClick: () -> Unit) {
     Box(contentAlignment = Alignment.Center) {
         Box(
             modifier = Modifier
-                .size(264.dp)
+                .size(tamanho * 1.32f)
                 .border(1.dp, SosVermelho.copy(alpha = 0.3f), CircleShape)
         )
         Box(
             modifier = Modifier
-                .size(232.dp)
+                .size(tamanho * 1.16f)
                 .background(SosVermelho.copy(alpha = 0.12f), CircleShape)
                 .border(1.dp, SosVermelho.copy(alpha = 0.45f), CircleShape)
         )
         Button(
             onClick = onClick,
             modifier = Modifier
-                .size(200.dp)
+                .size(tamanho)
                 .shadow(
                     elevation = 12.dp,
                     shape = CircleShape,
@@ -131,15 +139,14 @@ private fun BotaoSos(onClick: () -> Unit) {
                     spotColor = SosVermelho
                 ),
             shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = SosVermelho,
-                contentColor = Color.White
-            )
+            // Sem o recuo padrão do botão: no círculo menor ele quebrava o texto em "SO" e "S"
+            contentPadding = PaddingValues(0.dp),
+            colors = coresBotaoSos()
         ) {
             Text(
                 text = stringResource(R.string.botao_sos),
-                style = MaterialTheme.typography.displaySmall,
-                fontSize = 56.sp
+                style = MaterialTheme.typography.displayLarge,
+                maxLines = 1
             )
         }
     }
@@ -148,10 +155,7 @@ private fun BotaoSos(onClick: () -> Unit) {
 // Resumo: quantos contatos tem e se há trajeto em andamento
 @Composable
 private fun CardResumo(totalContatos: Int, trajetoAtivo: Boolean) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Petroleo, contentColor = Nevoa)
-    ) {
+    Card(modifier = Modifier.fillMaxWidth(), colors = coresCard()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -172,7 +176,7 @@ private fun CardResumo(totalContatos: Int, trajetoAtivo: Boolean) {
                         icone = Icons.Outlined.Route,
                         texto = stringResource(R.string.inicio_trajeto_ativo),
                         corIcone = NoitePetroleo,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                     )
                 }
             } else {

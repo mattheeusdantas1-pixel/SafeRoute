@@ -3,7 +3,6 @@ package com.example.saferoute.ui
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,11 +19,9 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,16 +31,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.saferoute.CONTAGEM_SOS_SEGUNDOS
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
-import com.example.saferoute.ui.theme.SosVermelho
+import com.example.saferoute.ui.theme.NumeroContagem
 import kotlinx.coroutines.delay
 
 // RF36: abre o discador já com o número. ACTION_DIAL só abre a tela de ligar,
@@ -84,40 +79,47 @@ fun SosPage(
     if (confirmando) {
         AlertDialog(
             onDismissRequest = { confirmando = false },
+            shape = MaterialTheme.shapes.large,
             title = { Text(stringResource(R.string.sos_encerrar_titulo)) },
-            text = { Text(stringResource(R.string.sos_encerrar_texto)) },
+            text = {
+                Text(
+                    text = stringResource(R.string.sos_encerrar_texto),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            },
             confirmButton = {
-                Button(onClick = {
-                    confirmando = false
-                    viewModel.encerrarSos()
-                }) {
-                    Text(stringResource(R.string.sos_encerrar))
+                Button(
+                    onClick = {
+                        confirmando = false
+                        viewModel.encerrarSos()
+                    },
+                    colors = coresBotaoPositivo()
+                ) {
+                    Text(stringResource(R.string.sos_encerrar), style = MaterialTheme.typography.titleMedium)
                 }
             },
             dismissButton = {
-                OutlinedButton(
-                    onClick = { confirmando = false },
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface)
-                ) {
-                    Text(stringResource(R.string.botao_cancelar))
+                BotaoContorno(onClick = { confirmando = false }) {
+                    Text(stringResource(R.string.botao_cancelar), style = MaterialTheme.typography.titleMedium)
                 }
             }
         )
     }
 
+    // Em cada estado, o conteúdo fica numa área que rola e as ações ficam fixas embaixo:
+    // numa emergência, ligar, cancelar e encerrar nunca podem ficar fora da tela
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        modifier = modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (segundos > 0) {
             // Fase 1: contagem, dá tempo de cancelar
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(top = 48.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 48.dp)
             ) {
                 Text(
                     text = stringResource(R.string.sos_enviando_em),
@@ -126,22 +128,26 @@ fun SosPage(
                 )
                 Text(
                     text = stringResource(R.string.sos_segundos, segundos),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontSize = 120.sp,
-                    lineHeight = 136.sp,
+                    style = NumeroContagem,
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            BotaoSecundario(
-                texto = stringResource(R.string.sos_cancelar),
-                onClick = { viewModel.cancelarSos() }
-            )
+            // Cancelar/Encerrar: sem vermelho, mas com borda forte para achar rápido, à noite e com pressa
+            BotaoContorno(
+                onClick = { viewModel.cancelarSos() },
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                Text(stringResource(R.string.sos_cancelar), style = MaterialTheme.typography.titleMedium)
+            }
         } else {
             // Fase 2: SOS ativo
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
             ) {
                 // Triângulo = alerta (psicologia das formas). Enfeite: o texto logo abaixo já diz tudo
                 Icon(
@@ -155,7 +161,7 @@ fun SosPage(
                     style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.error
                 )
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(modifier = Modifier.fillMaxWidth(), colors = coresCard()) {
                     Column(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -187,10 +193,12 @@ fun SosPage(
                     texto = stringResource(R.string.sos_ligar_192),
                     onClick = { discar(context, "192") }
                 )
-                BotaoSecundario(
-                    texto = stringResource(R.string.sos_encerrar),
-                    onClick = { confirmando = true }
-                )
+                BotaoContorno(
+                    onClick = { confirmando = true },
+                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                ) {
+                    Text(stringResource(R.string.sos_encerrar), style = MaterialTheme.typography.titleMedium)
+                }
             }
         }
     }
@@ -202,23 +210,10 @@ private fun BotaoEmergencia(texto: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().height(72.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = SosVermelho, contentColor = Color.White)
+        colors = coresBotaoSos()
     ) {
         Icon(imageVector = Icons.Filled.Phone, contentDescription = null)
         Spacer(Modifier.width(8.dp))
         Text(text = texto, style = MaterialTheme.typography.titleLarge)
-    }
-}
-
-// Cancelar/Encerrar: sem vermelho, mas com borda forte para achar rápido, à noite e com pressa
-@Composable
-private fun BotaoSecundario(texto: String, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth().height(56.dp),
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onBackground),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
-    ) {
-        Text(text = texto, style = MaterialTheme.typography.titleMedium)
     }
 }

@@ -1,14 +1,11 @@
 package com.example.saferoute.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.example.saferoute.R
 
 // Mesma ideia do CityDialog da Prática 03: um diálogo que só recebe funções.
@@ -23,20 +20,22 @@ fun CheckinDialog(
         onDismissRequest = { },
         shape = MaterialTheme.shapes.large,
         title = { Text(stringResource(R.string.trajeto_checkin_titulo)) },
-        text = { Text(stringResource(R.string.trajeto_checkin_texto)) },
+        text = {
+            Text(
+                text = stringResource(R.string.trajeto_checkin_texto),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
         confirmButton = {
             Button(onClick = onCheguei, colors = coresBotaoPositivo()) {
-                Text(stringResource(R.string.trajeto_cheguei))
+                Text(stringResource(R.string.trajeto_cheguei), style = MaterialTheme.typography.titleMedium)
             }
         },
         dismissButton = {
             // RN13: depois de 3 adiamentos o "Mais 15 min" some
             if (podeAdiar) {
-                OutlinedButton(
-                    onClick = onAdiar,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface)
-                ) {
-                    Text(stringResource(R.string.trajeto_mais_15))
+                BotaoContorno(onClick = onAdiar) {
+                    Text(stringResource(R.string.trajeto_mais_15), style = MaterialTheme.typography.titleMedium)
                 }
             }
         }

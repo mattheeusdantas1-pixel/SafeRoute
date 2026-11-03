@@ -24,7 +24,11 @@ val Inter = FontFamily(
     Font(R.font.inter, FontWeight.SemiBold, variationSettings = FontVariation.Settings(FontVariation.weight(600)))
 )
 
+// Número gigante da contagem do SOS: precisa ser lido de longe, e não existe estilo padrão desse tamanho
+val NumeroContagem = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 120.sp, lineHeight = 136.sp)
+
 val Typography = Typography(
+    displayLarge = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 56.sp, lineHeight = 64.sp),
     displaySmall = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 36.sp, lineHeight = 44.sp),
     headlineLarge = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 30.sp, lineHeight = 38.sp),
     headlineMedium = TextStyle(fontFamily = Poppins, fontWeight = FontWeight.SemiBold, fontSize = 26.sp, lineHeight = 34.sp),
