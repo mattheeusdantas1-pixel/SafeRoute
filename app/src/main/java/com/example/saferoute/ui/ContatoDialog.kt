@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,10 +25,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.saferoute.R
 
@@ -43,10 +43,17 @@ fun ContatoDialog(
     var parentesco by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var erro by rememberSaveable { mutableStateOf<Int?>(null) }
+    // Só nome e telefone são obrigatórios
+    val podeSalvar = nome.isNotBlank() && telefone.isNotEmpty()
 
     Dialog(onDismissRequest = { onDismiss() }) {
-        Surface(shape = RoundedCornerShape(16.dp)) {
-            Column(modifier = Modifier.padding(16.dp)) {
+        Surface(shape = MaterialTheme.shapes.large) {
+            // Rolagem: com 4 campos, a mensagem de erro e o teclado, pode não caber tudo
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -54,8 +61,7 @@ fun ContatoDialog(
                 ) {
                     Text(
                         text = stringResource(R.string.contato_dialog_titulo),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge
                     )
                     IconButton(onClick = { onDismiss() }) {
                         Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.fechar))
@@ -89,15 +95,16 @@ fun ContatoDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardType = KeyboardType.Email
                 )
-                MensagemErro(erro)
+                MensagemErro(erro, Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = { erro = onConfirm(nome, telefone, parentesco, email) },
-                    // Só nome e telefone são obrigatórios
-                    enabled = nome.isNotBlank() && telefone.isNotEmpty(),
-                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                    enabled = podeSalvar,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    colors = coresBotaoPositivo()
                 ) {
-                    Text(stringResource(R.string.botao_salvar))
+                    CadeadoDesabilitado(podeSalvar)
+                    Text(stringResource(R.string.botao_salvar), style = MaterialTheme.typography.titleMedium)
                 }
             }
         }

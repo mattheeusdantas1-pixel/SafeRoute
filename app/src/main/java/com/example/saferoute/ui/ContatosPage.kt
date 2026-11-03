@@ -3,7 +3,9 @@ package com.example.saferoute.ui
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,14 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,15 +37,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.saferoute.MAX_CONTATOS
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
 import com.example.saferoute.model.Contato
+import com.example.saferoute.ui.theme.Nevoa
+import com.example.saferoute.ui.theme.NoitePetroleo
+import com.example.saferoute.ui.theme.Petroleo
+import com.example.saferoute.ui.theme.VerdeAgua
 
-// Card em retângulo arredondado (forma "estável", da aula de IHC)
+// Card em retângulo arredondado (forma "estável", da aula de IHC).
+// Petróleo nos dois modos, igual aos cards do Início e do Trajeto.
 @Composable
 fun ContatoCard(
     contato: Contato,
@@ -51,26 +56,34 @@ fun ContatoCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Petroleo, contentColor = Nevoa),
         modifier = modifier.fillMaxWidth().padding(vertical = 4.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // O nome já é lido logo ao lado, então o ícone é só decoração
-            Icon(Icons.Filled.Person, contentDescription = null)
+            // O nome já é lido logo ao lado, então o ícone é só decoração.
+            // Quadrado arredondado, e não círculo: o círculo é só do botão SOS
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(VerdeAgua, MaterialTheme.shapes.small),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Outlined.Person, contentDescription = null, tint = NoitePetroleo)
+            }
             Spacer(modifier = Modifier.size(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = contato.nome, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text(text = formatarTelefone(contato.telefone), fontSize = 16.sp)
+                Text(text = contato.nome, style = MaterialTheme.typography.titleLarge)
+                Text(text = formatarTelefone(contato.telefone), style = MaterialTheme.typography.bodyLarge)
                 // Opcionais: só aparecem se foram preenchidos
-                contato.parentesco?.let { Text(text = it, fontSize = 16.sp) }
-                contato.email?.let { Text(text = it, fontSize = 16.sp) }
+                contato.parentesco?.let { Text(text = it, style = MaterialTheme.typography.bodyLarge) }
+                contato.email?.let { Text(text = it, style = MaterialTheme.typography.bodyLarge) }
             }
             IconButton(onClick = onRemover) {
                 Icon(
-                    Icons.Filled.Delete,
+                    Icons.Outlined.Delete,
                     contentDescription = stringResource(R.string.remover_contato_desc, contato.nome)
                 )
             }
@@ -94,18 +107,17 @@ fun ContatosPage(
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stringResource(R.string.contatos_titulo),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.weight(1f)
             )
             Text(
                 text = stringResource(R.string.contatos_contador, contatos.size, MAX_CONTATOS),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -113,7 +125,7 @@ fun ContatosPage(
         if (contatos.isEmpty()) {
             Text(
                 text = stringResource(R.string.contatos_vazio),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f).padding(top = 16.dp)
             )
         } else {
@@ -132,7 +144,7 @@ fun ContatosPage(
         if (cheio) {
             Text(
                 text = stringResource(R.string.contatos_limite),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
@@ -140,11 +152,12 @@ fun ContatosPage(
         Button(
             onClick = { showDialog = true },
             enabled = !cheio,
-            modifier = Modifier.fillMaxWidth().height(56.dp)
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            colors = coresBotaoPositivo()
         ) {
             Icon(Icons.Filled.Add, contentDescription = null)
             Spacer(modifier = Modifier.size(8.dp))
-            Text(stringResource(R.string.botao_adicionar_contato), fontSize = 16.sp)
+            Text(stringResource(R.string.botao_adicionar_contato), style = MaterialTheme.typography.titleMedium)
         }
     }
 
@@ -167,18 +180,19 @@ fun ContatosPage(
     if (contatoParaRemover != null) {
         AlertDialog(
             onDismissRequest = { idParaRemover = null },
+            shape = MaterialTheme.shapes.large,
             title = { Text(stringResource(R.string.remover_contato_titulo)) },
             text = { Text(stringResource(R.string.remover_contato_texto, contatoParaRemover.nome)) },
             confirmButton = {
-                TextButton(
+                // Sem vermelho: remover contato é ação comum, o vermelho fica só para SOS e alertas
+                BotaoContorno(
                     onClick = {
                         viewModel.removerContato(contatoParaRemover)
                         idParaRemover = null
                         Toast.makeText(activity, R.string.contato_removido, Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    // Vermelho só aqui: é uma ação que apaga
-                    Text(stringResource(R.string.botao_remover), color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.botao_remover))
                 }
             },
             dismissButton = {
