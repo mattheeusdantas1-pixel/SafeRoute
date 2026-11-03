@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -63,6 +64,7 @@ fun DataField(
         onValueChange = onValueChange,
         label = { Text(label) },
         singleLine = true,
+        shape = MaterialTheme.shapes.medium,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         modifier = modifier
     )
@@ -82,6 +84,7 @@ fun TelefoneField(
         label = { Text(stringResource(R.string.campo_telefone)) },
         placeholder = { Text(stringResource(R.string.exemplo_telefone)) },
         singleLine = true,
+        shape = MaterialTheme.shapes.medium,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         visualTransformation = TelefoneVisualTransformation(),
         modifier = modifier
@@ -102,6 +105,7 @@ fun PasswordField(
         onValueChange = onValueChange,
         label = { Text(label) },
         singleLine = true,
+        shape = MaterialTheme.shapes.medium,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         visualTransformation = if (visivel) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
@@ -118,15 +122,23 @@ fun PasswordField(
     )
 }
 
-// Mostra a mensagem de erro (id do strings.xml) em vermelho; se for null não mostra nada
+// Mostra a mensagem de erro (id do strings.xml) numa caixa de alerta; se for null não mostra nada.
+// A caixa existe por causa do contraste: vermelho direto sobre o fundo Névoa fica difícil de ler.
 @Composable
 fun MensagemErro(erro: Int?, modifier: Modifier = Modifier) {
     if (erro != null) {
-        Text(
-            text = stringResource(erro),
-            color = MaterialTheme.colorScheme.error,
+        Surface(
+            color = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            shape = MaterialTheme.shapes.small,
             modifier = modifier.padding(top = 8.dp)
-        )
+        ) {
+            Text(
+                text = stringResource(erro),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            )
+        }
     }
 }
 
