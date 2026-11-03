@@ -9,6 +9,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +29,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.saferoute.R
+import com.example.saferoute.ui.theme.NoitePetroleo
+import com.example.saferoute.ui.theme.VerdeAgua
 
 // Tela provisória: título + "em construção" + o que mais a tela quiser pôr embaixo
 @Composable
@@ -125,3 +129,8 @@ fun MensagemErro(erro: Int?, modifier: Modifier = Modifier) {
         )
     }
 }
+
+// Ações positivas (iniciar, cheguei bem): Verde-água nos dois modos, com texto escuro para dar contraste
+@Composable
+fun coresBotaoPositivo(): ButtonColors =
+    ButtonDefaults.buttonColors(containerColor = VerdeAgua, contentColor = NoitePetroleo)
