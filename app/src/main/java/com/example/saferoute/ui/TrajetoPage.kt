@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material3.Button
@@ -29,9 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -130,56 +130,67 @@ fun TrajetoPage(
             val minutosAndados = decorrido / 60_000
             val km = minutosAndados * METROS_POR_MINUTO / 1000
 
-            // Card de cima: o que mais importa, quanto falta
-            Card(modifier = Modifier.fillMaxWidth(), colors = coresCardTrajeto()) {
+            // A curva ocupa a área toda e os cards ficam por cima, então só aparece o trecho entre eles.
+            // Assim ela nunca fica espremida. Em tela baixa os cards rolam e o botão continua fixo embaixo.
+            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                CurvaDoCaminho(modifier = Modifier.matchParentSize())
+
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = stringResource(R.string.inicio_trajeto_ativo),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Text(
-                        text = stringResource(R.string.trajeto_restante, formatarTempo(trajeto.previsaoChegada - agora)),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                }
-            }
-
-            // weight: a curva ocupa o espaço que sobrar e joga o resto para a zona do polegar
-            CurvaDoCaminho(modifier = Modifier.fillMaxWidth().weight(1f))
-
-            // Card de baixo: detalhes do trajeto
-            Card(modifier = Modifier.fillMaxWidth(), colors = coresCardTrajeto()) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = trajeto.destino ?: stringResource(R.string.trajeto_sem_destino),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Text(stringResource(R.string.trajeto_decorrido, formatarTempo(decorrido)))
-                        Text(stringResource(R.string.trajeto_distancia, "%.1f".format(Locale.forLanguageTag("pt-BR"), km)))
+                    // Card de cima: o que mais importa, quanto falta
+                    Card(modifier = Modifier.fillMaxWidth(), colors = coresCardTrajeto()) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.inicio_trajeto_ativo),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = stringResource(R.string.trajeto_restante, formatarTempo(trajeto.previsaoChegada - agora)),
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                        }
                     }
-                    // Enfeite (por isso sem contentDescription): o texto ao lado já diz o destino
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .background(VerdeAgua, MaterialTheme.shapes.small),
-                        contentAlignment = Alignment.Center
+
+                    // Card de baixo: detalhes do trajeto (o padding garante um respiro entre os cards)
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                        colors = coresCardTrajeto()
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Place,
-                            contentDescription = null,
-                            tint = NoitePetroleo
-                        )
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = trajeto.destino ?: stringResource(R.string.trajeto_sem_destino),
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                Text(stringResource(R.string.trajeto_decorrido, formatarTempo(decorrido)))
+                                Text(stringResource(R.string.trajeto_distancia, "%.1f".format(Locale.forLanguageTag("pt-BR"), km)))
+                            }
+                            // Enfeite (por isso sem contentDescription): o texto ao lado já diz o destino
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(VerdeAgua, MaterialTheme.shapes.small),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Place,
+                                    contentDescription = null,
+                                    tint = NoitePetroleo
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -201,6 +212,7 @@ private fun coresCardTrajeto() =
     CardDefaults.cardColors(containerColor = Petroleo, contentColor = Nevoa)
 
 // Curva contínua = o caminho (psicologia das formas). É só desenho, não é mapa nem GPS.
+// As posições são frações da largura e da altura, por isso ela acompanha qualquer tamanho de tela.
 @Composable
 private fun CurvaDoCaminho(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
@@ -217,8 +229,7 @@ private fun CurvaDoCaminho(modifier: Modifier = Modifier) {
         drawPath(
             path = caminho,
             color = VerdeAgua,
-            style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
+            style = Stroke(width = 4.dp.toPx())
         )
-        drawCircle(color = VerdeAgua, radius = 8.dp.toPx(), center = Offset(largura * 0.3f, altura))
     }
 }
