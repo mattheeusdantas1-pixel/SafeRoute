@@ -10,13 +10,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,11 +32,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.saferoute.ui.BotaoContorno
+import com.example.saferoute.ui.CadeadoDesabilitado
 import com.example.saferoute.ui.DataField
 import com.example.saferoute.ui.MensagemErro
 import com.example.saferoute.ui.PasswordField
 import com.example.saferoute.ui.TelefoneField
+import com.example.saferoute.ui.coresBotaoPositivo
 import com.example.saferoute.ui.theme.SafeRouteTheme
 
 class RegisterActivity : ComponentActivity() {
@@ -58,18 +64,26 @@ fun RegisterPage(modifier: Modifier = Modifier) {
     var erro by rememberSaveable { mutableStateOf<Int?>(null) }
     val activity = LocalActivity.current as Activity
 
-    val fieldModifier = Modifier.fillMaxWidth(fraction = 0.9f)
+    val fieldModifier = Modifier.fillMaxWidth()
     // Aviso na hora, enquanto digita a confirmação (o botão fica desabilitado nesse caso)
     val senhasDiferentes = confirmacao.isNotEmpty() && senha != confirmacao
+    val podeConfirmar = nome.isNotEmpty() && telefone.isNotEmpty() &&
+                        senha.isNotEmpty() && confirmacao.isNotEmpty() &&
+                        senha == confirmacao
 
+    // imePadding + rolagem: são 4 campos, e com o teclado aberto eles não cabem todos na tela
     Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = stringResource(R.string.cadastro_titulo),
-            fontSize = 24.sp
+            style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.size(24.dp))
         DataField(
@@ -98,40 +112,38 @@ fun RegisterPage(modifier: Modifier = Modifier) {
             onValueChange = { confirmacao = it; erro = null },
             modifier = fieldModifier
         )
-        MensagemErro(if (senhasDiferentes) R.string.erro_senhas_diferentes else erro)
+        MensagemErro(if (senhasDiferentes) R.string.erro_senhas_diferentes else erro, fieldModifier)
         Spacer(modifier = Modifier.size(24.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                onClick = {
-                    erro = validarCadastro(nome, telefone, senha, confirmacao)
-                    if (erro == null) {
-                        Toast.makeText(activity, R.string.cadastro_ok, Toast.LENGTH_LONG).show()
-                        // Cadastrou, já entra no app com o nome e o telefone
-                        activity.startActivity(
-                            Intent(activity, MainActivity::class.java)
-                                .putExtra(EXTRA_NOME, nome.trim())
-                                .putExtra(EXTRA_TELEFONE, telefone)
-                                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                        )
-                        activity.finish()
-                    }
-                },
-                enabled = nome.isNotEmpty() && telefone.isNotEmpty() &&
-                          senha.isNotEmpty() && confirmacao.isNotEmpty() &&
-                          senha == confirmacao
-            ) {
-                Text(stringResource(R.string.botao_confirmar))
-            }
-            Button(
-                onClick = {
-                    nome = ""; telefone = ""; senha = ""; confirmacao = ""; erro = null
+        Button(
+            onClick = {
+                erro = validarCadastro(nome, telefone, senha, confirmacao)
+                if (erro == null) {
+                    Toast.makeText(activity, R.string.cadastro_ok, Toast.LENGTH_LONG).show()
+                    // Cadastrou, já entra no app com o nome e o telefone
+                    activity.startActivity(
+                        Intent(activity, MainActivity::class.java)
+                            .putExtra(EXTRA_NOME, nome.trim())
+                            .putExtra(EXTRA_TELEFONE, telefone)
+                            .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    )
+                    activity.finish()
                 }
-            ) {
-                Text(stringResource(R.string.botao_limpar))
-            }
+            },
+            enabled = podeConfirmar,
+            modifier = fieldModifier.height(56.dp),
+            colors = coresBotaoPositivo()
+        ) {
+            CadeadoDesabilitado(podeConfirmar)
+            Text(stringResource(R.string.botao_confirmar), style = MaterialTheme.typography.titleMedium)
+        }
+        Spacer(modifier = Modifier.size(12.dp))
+        BotaoContorno(
+            onClick = {
+                nome = ""; telefone = ""; senha = ""; confirmacao = ""; erro = null
+            },
+            modifier = fieldModifier.height(56.dp)
+        ) {
+            Text(stringResource(R.string.botao_limpar), style = MaterialTheme.typography.titleMedium)
         }
     }
 }
