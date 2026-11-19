@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20"
+    // Tem que ser o último plugin da lista
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
