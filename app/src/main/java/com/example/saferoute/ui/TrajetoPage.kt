@@ -1,6 +1,5 @@
 package com.example.saferoute.ui
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,8 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -127,11 +125,8 @@ fun TrajetoPage(
             val minutosAndados = decorrido / 60_000
             val km = minutosAndados * METROS_POR_MINUTO / 1000
 
-            // A curva ocupa a área toda e os cards ficam por cima, então só aparece o trecho entre eles.
-            // Assim ela nunca fica espremida. Em tela baixa os cards rolam e o botão continua fixo embaixo.
+            // Em tela baixa os cards e o mapa rolam e o botão continua fixo embaixo
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                CurvaDoCaminho(modifier = Modifier.matchParentSize())
-
                 Column(
                     modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.SpaceBetween
@@ -189,6 +184,15 @@ fun TrajetoPage(
                             }
                         }
                     }
+
+                    // Altura fixa: o mapa está numa coluna com rolagem e não pode ocupar altura infinita
+                    MapaTrajeto(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                            .height(240.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                    )
                 }
             }
             MensagemErro(erro)
@@ -200,28 +204,5 @@ fun TrajetoPage(
                 Text(stringResource(R.string.trajeto_cheguei), style = MaterialTheme.typography.titleMedium)
             }
         }
-    }
-}
-
-// Curva contínua = o caminho (psicologia das formas). É só desenho, não é mapa nem GPS.
-// As posições são frações da largura e da altura, por isso ela acompanha qualquer tamanho de tela.
-@Composable
-private fun CurvaDoCaminho(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        val largura = size.width
-        val altura = size.height
-        val caminho = Path().apply {
-            moveTo(largura * 0.75f, 0f)
-            cubicTo(
-                largura * 0.75f, altura * 0.5f,
-                largura * 0.3f, altura * 0.5f,
-                largura * 0.3f, altura
-            )
-        }
-        drawPath(
-            path = caminho,
-            color = VerdeAgua,
-            style = Stroke(width = 4.dp.toPx())
-        )
     }
 }
