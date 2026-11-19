@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20"
+    id("com.google.gms.google-services")
     // Tem que ser o último plugin da lista
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
@@ -57,6 +58,10 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:20.0.0")
     implementation("com.google.android.gms:play-services-location:21.4.0")
     implementation("com.google.maps.android:maps-compose:9.0.0")
+
+    // Prática 05: Firebase Auth
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-auth")
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
