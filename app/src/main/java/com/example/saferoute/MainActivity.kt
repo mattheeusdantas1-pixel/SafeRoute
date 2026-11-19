@@ -22,10 +22,8 @@ import com.example.saferoute.ui.nav.BottomNavItem
 import com.example.saferoute.ui.nav.MainNavHost
 import com.example.saferoute.ui.nav.Route
 import com.example.saferoute.ui.theme.SafeRouteTheme
-
-// Nomes dos dados que o Login e o Cadastro mandam pelo Intent
-const val EXTRA_NOME = "nome"
-const val EXTRA_TELEFONE = "telefone"
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -37,11 +35,16 @@ class MainActivity : ComponentActivity() {
         // Só na primeira abertura. Se a tela girar, o ViewModel já tem os dados
         // (e o nome pode ter sido editado no Perfil, não dá para sobrescrever).
         if (savedInstanceState == null) {
-            val telefone = intent.getStringExtra(EXTRA_TELEFONE)
-            if (telefone != null) {
-                // O login simulado não sabe o nome (não tem servidor); aí fica o nome de exemplo
-                val nome = intent.getStringExtra(EXTRA_NOME) ?: viewModel.usuario.nome
-                viewModel.definirUsuario(nome, telefone)
+            val usuarioLogado = Firebase.auth.currentUser
+            if (usuarioLogado != null) {
+                // Conta sem nome no perfil: mantém o nome que o ViewModel já tem
+                val nome = usuarioLogado.displayName?.takeIf { it.isNotBlank() }
+                    ?: viewModel.usuario.nome
+                viewModel.definirUsuario(
+                    nome = nome,
+                    telefone = "",   // o telefone só vem do banco na Prática 6
+                    email = usuarioLogado.email ?: ""
+                )
             }
         }
 

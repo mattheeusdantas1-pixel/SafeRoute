@@ -122,6 +122,25 @@ fun PerfilPage(
             }
             Spacer(modifier = Modifier.height(16.dp))
 
+            // E-mail da conta: só leitura, no mesmo padrão do telefone logo abaixo
+            OutlinedTextField(
+                value = usuario.email,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.conta_campo_email)) },
+                supportingText = {
+                    Text(
+                        text = stringResource(R.string.conta_email_info),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                trailingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
             // readOnly: aparece igual aos outros campos, mas não deixa editar.
             // O telefone é a "identidade" da conta, por isso não muda (RF04).
             // O cadeado avisa isso sem depender de cor: o texto embaixo explica o motivo

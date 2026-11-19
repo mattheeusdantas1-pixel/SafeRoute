@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,11 +36,17 @@ import androidx.compose.ui.unit.dp
 import com.example.saferoute.ui.BotaoContorno
 import com.example.saferoute.ui.CadeadoDesabilitado
 import com.example.saferoute.ui.DataField
+import com.example.saferoute.ui.EmailField
 import com.example.saferoute.ui.MensagemErro
 import com.example.saferoute.ui.PasswordField
 import com.example.saferoute.ui.TelefoneField
 import com.example.saferoute.ui.coresBotaoPositivo
 import com.example.saferoute.ui.theme.SafeRouteTheme
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.userProfileChangeRequest
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,16 +65,18 @@ class RegisterActivity : ComponentActivity() {
 @Composable
 fun RegisterPage(modifier: Modifier = Modifier) {
     var nome by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
     var telefone by rememberSaveable { mutableStateOf("") }
     var senha by rememberSaveable { mutableStateOf("") }
     var confirmacao by rememberSaveable { mutableStateOf("") }
     var erro by rememberSaveable { mutableStateOf<Int?>(null) }
+    var carregando by remember { mutableStateOf(false) }
     val activity = LocalActivity.current as Activity
 
     val fieldModifier = Modifier.fillMaxWidth()
     // Aviso na hora, enquanto digita a confirmação (o botão fica desabilitado nesse caso)
     val senhasDiferentes = confirmacao.isNotEmpty() && senha != confirmacao
-    val podeConfirmar = nome.isNotEmpty() && telefone.isNotEmpty() &&
+    val podeConfirmar = nome.isNotEmpty() && email.isNotEmpty() && telefone.isNotEmpty() &&
                         senha.isNotEmpty() && confirmacao.isNotEmpty() &&
                         senha == confirmacao
 
@@ -90,6 +99,12 @@ fun RegisterPage(modifier: Modifier = Modifier) {
             label = stringResource(R.string.campo_nome),
             value = nome,
             onValueChange = { nome = it; erro = null },
+            modifier = fieldModifier
+        )
+        Spacer(modifier = Modifier.size(12.dp))
+        EmailField(
+            value = email,
+            onValueChange = { email = it; erro = null },
             modifier = fieldModifier
         )
         Spacer(modifier = Modifier.size(12.dp))
@@ -116,30 +131,48 @@ fun RegisterPage(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.size(24.dp))
         Button(
             onClick = {
-                erro = validarCadastro(nome, telefone, senha, confirmacao)
+                erro = validarCadastro(nome, email, telefone, senha, confirmacao)
                 if (erro == null) {
-                    Toast.makeText(activity, R.string.cadastro_ok, Toast.LENGTH_LONG).show()
-                    // Cadastrou, já entra no app com o nome e o telefone
-                    activity.startActivity(
-                        Intent(activity, MainActivity::class.java)
-                            .putExtra(EXTRA_NOME, nome.trim())
-                            .putExtra(EXTRA_TELEFONE, telefone)
-                            .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    )
-                    activity.finish()
+                    carregando = true
+                    Firebase.auth.createUserWithEmailAndPassword(email.trim(), senha)
+                        .addOnCompleteListener(activity) { task ->
+                            if (task.isSuccessful) {
+                                // Guarda o nome no perfil do Firebase e só depois entra no app
+                                val perfil = userProfileChangeRequest { displayName = nome.trim() }
+                                task.result.user?.updateProfile(perfil)
+                                    ?.addOnCompleteListener(activity) {
+                                        Toast.makeText(activity, R.string.cadastro_ok, Toast.LENGTH_LONG).show()
+                                        activity.startActivity(
+                                            Intent(activity, MainActivity::class.java)
+                                                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                        )
+                                        activity.finish()
+                                    }
+                            } else {
+                                carregando = false
+                                erro = when (task.exception) {
+                                    is FirebaseAuthUserCollisionException -> R.string.conta_erro_email_existe
+                                    is FirebaseNetworkException -> R.string.conta_erro_rede
+                                    else -> R.string.conta_erro_generico
+                                }
+                            }
+                        }
                 }
             },
-            enabled = podeConfirmar,
+            enabled = podeConfirmar && !carregando,
             modifier = fieldModifier.height(56.dp),
             colors = coresBotaoPositivo()
         ) {
-            CadeadoDesabilitado(podeConfirmar)
+            CadeadoDesabilitado(podeConfirmar && !carregando)
             Text(stringResource(R.string.botao_confirmar), style = MaterialTheme.typography.titleMedium)
         }
         Spacer(modifier = Modifier.size(12.dp))
         BotaoContorno(
             onClick = {
-                nome = ""; telefone = ""; senha = ""; confirmacao = ""; erro = null
+                // Durante o cadastro não limpa, senão some o que está sendo enviado
+                if (!carregando) {
+                    nome = ""; email = ""; telefone = ""; senha = ""; confirmacao = ""; erro = null
+                }
             },
             modifier = fieldModifier.height(56.dp)
         ) {

@@ -73,6 +73,14 @@
 
     <!-- Mensagem exibida quando o histórico está vazio -->
     <string name="historico_vazio">Nenhum trajeto ainda</string>
+    <string name="historico_sem_destino">Sem destino</string>
+    <string name="historico_duracao">Duração: %1$s</string>
+    <string name="historico_minutos">%1$d min</string>
+    <string name="historico_duracao_andamento">em andamento</string>
+    <string name="historico_distancia">Distância: %1$s km</string>
+    <string name="status_seguro">Seguro</string>
+    <string name="status_alerta">Alerta</string>
+    <string name="status_em_andamento">Em andamento</string>
 
     <!-- Início -->
     <string name="inicio_dica_sos">Em uma emergência, toque no botão SOS</string>
@@ -110,4 +118,11 @@
     <string name="sos_encerrar_titulo">Encerrar o SOS?</string>
     <string name="sos_encerrar_texto">Seus contatos deixam de receber mensagens. Confirme só se você estiver segura.</string>
     <string name="erro_sos_sem_contatos">Cadastre pelo menos um contato de confiança antes de usar o SOS</string>
+    <string name="conta_campo_email">E-mail</string>
+    <string name="erro_email">Digite um e-mail válido.</string>
+    <string name="conta_erro_email_existe">Esse e-mail já tem cadastro. Tente entrar.</string>
+    <string name="conta_erro_login">E-mail ou senha incorretos.</string>
+    <string name="conta_email_info">O e-mail não pode ser alterado</string>
+    <string name="conta_erro_rede">Sem conexão. Confira a internet e tente de novo.</string>
+    <string name="conta_erro_generico">Não foi possível concluir. Tente de novo.</string>
 </resources>

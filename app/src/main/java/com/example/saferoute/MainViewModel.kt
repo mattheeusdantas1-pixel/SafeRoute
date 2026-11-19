@@ -73,8 +73,8 @@ class MainViewModel : ViewModel() {
         private set
 
     // Chamado pela MainActivity com os dados que vieram do login
-    fun definirUsuario(nome: String, telefone: String) {
-        usuario = usuario.copy(nome = nome, telefone = telefone)
+    fun definirUsuario(nome: String, telefone: String, email: String) {
+        usuario = usuario.copy(nome = nome, telefone = telefone, email = email)
     }
 
     // RF03: editar o nome no Perfil. Devolve null se salvou; se não, o id do erro

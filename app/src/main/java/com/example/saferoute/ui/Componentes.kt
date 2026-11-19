@@ -103,6 +103,25 @@ fun TelefoneField(
     )
 }
 
+// Campo de e-mail: teclado de e-mail e uma linha só.
+// Usa conta_campo_email ("E-mail"); o campo_email é o "opcional" do cadastro de contatos
+@Composable
+fun EmailField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(stringResource(R.string.conta_campo_email)) },
+        singleLine = true,
+        shape = MaterialTheme.shapes.medium,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        modifier = modifier
+    )
+}
+
 // Campo de senha com o "olho" para mostrar/esconder
 @Composable
 fun PasswordField(
