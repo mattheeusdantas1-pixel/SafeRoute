@@ -119,6 +119,13 @@ fun TrajetoPage(
             ) {
                 Text(stringResource(R.string.trajeto_iniciar), style = MaterialTheme.typography.titleMedium)
             }
+            // O mapa ocupa o espaço que sobra embaixo do formulário
+            MapaTrajeto(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(MaterialTheme.shapes.medium)
+            )
         } else {
             // Tem trajeto: mostra os tempos
             val decorrido = agora - trajeto.inicio
