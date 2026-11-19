@@ -3,9 +3,17 @@ package com.example.saferoute
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.saferoute.db.fb.FBContato
+import com.example.saferoute.db.fb.FBDatabase
+import com.example.saferoute.db.fb.FBTrajeto
+import com.example.saferoute.db.fb.FBUser
+import com.example.saferoute.db.fb.toFBContato
+import com.example.saferoute.db.fb.toFBTrajeto
+import com.example.saferoute.db.fb.toFBUser
 import com.example.saferoute.model.AlertaSos
 import com.example.saferoute.model.Contato
 import com.example.saferoute.model.Localizacao
@@ -17,7 +25,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val MINUTO = 60_000L
-private const val HORA = 60 * MINUTO
 
 // RN01: no máximo 5 contatos de confiança
 const val MAX_CONTATOS = 5
@@ -30,29 +37,12 @@ const val METROS_POR_MINUTO = 80.0           // distância simulada (GPS de verd
 private const val ADIAMENTO_MS = 15 * MINUTO
 const val TEMPO_RESPOSTA_CHECKIN_MS = 5 * MINUTO
 
-// Dados de exemplo para as telas não abrirem vazias na demo
-private fun contatosExemplo() = listOf(
-    Contato(nome = "Maria Silva", telefone = "81988887777", parentesco = "Mãe"),
-    Contato(nome = "João Santos", telefone = "81977776666", parentesco = "Irmão")
-)
+// O ViewModel não fala com o Firebase direto: usa o FBDatabase e é avisado pelo Listener
+class MainViewModel(private val db: FBDatabase) : ViewModel(), FBDatabase.Listener {
+    init {
+        db.setListener(this)
+    }
 
-private fun historicoExemplo(): List<Trajeto> {
-    val agora = System.currentTimeMillis()
-    val ontem = agora - 24 * HORA
-    val anteontem = agora - 48 * HORA
-    return listOf(
-        Trajeto(
-            inicio = ontem, previsaoChegada = ontem + 30 * MINUTO, fim = ontem + 25 * MINUTO,
-            destino = "Casa", distanciaMetros = 2400.0, status = StatusTrajeto.SEGURO
-        ),
-        Trajeto(
-            inicio = anteontem, previsaoChegada = anteontem + 20 * MINUTO, fim = anteontem + 40 * MINUTO,
-            destino = "Faculdade", distanciaMetros = 1800.0, status = StatusTrajeto.ALERTA
-        )
-    )
-}
-
-class MainViewModel : ViewModel() {
     // ===== CONTA E CONTATOS =====
 
     // "private set": a tela pode ler, mas só o ViewModel pode mudar.
@@ -63,9 +53,44 @@ class MainViewModel : ViewModel() {
 
     // Mesmo esquema das cidades da Prática 03: a lista de verdade é privada
     // e a tela só recebe uma cópia, então ninguém mexe nela por fora do ViewModel
-    private val _contatos = contatosExemplo().toMutableStateList()
+    private val _contatos = mutableStateListOf<Contato>()
     val contatos
         get() = _contatos.toList()
+
+    // ===== OUVINTE DO BANCO (FBDatabase.Listener) =====
+
+    override fun onUserLoaded(user: FBUser) {
+        usuario = user.toUsuario()
+    }
+
+    // Saiu da conta: limpa tudo que era da pessoa
+    override fun onUserSignOut() {
+        _contatos.clear()
+        historico = emptyList()
+    }
+
+    override fun onContatoAdded(contato: FBContato) {
+        val novo = contato.toContato()
+        if (_contatos.none { it.id == novo.id }) _contatos.add(novo)
+    }
+
+    override fun onContatoRemoved(contato: FBContato) {
+        _contatos.removeAll { it.id == contato.id }
+    }
+
+    override fun onTrajetoAdded(trajeto: FBTrajeto) {
+        guardarNoHistorico(trajeto.toTrajeto())
+    }
+
+    override fun onTrajetoUpdated(trajeto: FBTrajeto) {
+        guardarNoHistorico(trajeto.toTrajeto())
+    }
+
+    // Se o id já existe, troca; senão entra. O mais recente fica no topo.
+    private fun guardarNoHistorico(novo: Trajeto) {
+        val lista = historico.filter { it.id != novo.id } + novo
+        historico = lista.sortedByDescending { it.fim ?: it.inicio }
+    }
 
     // Modo escuro escolhido no Perfil. Por enquanto só guarda a escolha;
     // o tema ainda não usa esse valor
@@ -81,14 +106,18 @@ class MainViewModel : ViewModel() {
     fun alterarNome(nome: String): Int? {
         val erro = if (nome.isBlank()) R.string.erro_nome_vazio else null
         if (erro == null) {
-            usuario = usuario.copy(nome = nome.trim())
+            val novo = usuario.copy(nome = nome.trim())
+            usuario = novo
+            db.salvarUsuario(novo.toFBUser())
         }
         return erro
     }
 
     // RF19: liga/desliga o gesto de sacudir o celular para pedir SOS
     fun alterarGestoSacudir(ativo: Boolean) {
-        usuario = usuario.copy(gestoSacudirAtivo = ativo)
+        val novo = usuario.copy(gestoSacudirAtivo = ativo)
+        usuario = novo
+        db.salvarUsuario(novo.toFBUser())
     }
 
     fun alterarModoEscuro(ativo: Boolean) {
@@ -106,21 +135,21 @@ class MainViewModel : ViewModel() {
             else -> null
         }
         if (erro == null) {
-            _contatos.add(
-                Contato(
-                    nome = nome.trim(),
-                    telefone = telefone,
-                    // Campos opcionais: em branco vira null, para a tela saber que não tem
-                    parentesco = parentesco.trim().ifBlank { null },
-                    email = email.trim().ifBlank { null }
-                )
+            // Só manda para o banco: a lista muda quando o listener avisar
+            val contato = Contato(
+                nome = nome.trim(),
+                telefone = telefone,
+                // Campos opcionais: em branco vira null, para a tela saber que não tem
+                parentesco = parentesco.trim().ifBlank { null },
+                email = email.trim().ifBlank { null }
             )
+            db.adicionarContato(contato.toFBContato())
         }
         return erro
     }
 
     fun removerContato(contato: Contato) {
-        _contatos.remove(contato)
+        db.removerContato(contato.toFBContato())
     }
 
     // ===== TRAJETO, SOS E HISTÓRICO =====
@@ -137,7 +166,7 @@ class MainViewModel : ViewModel() {
     var sosAtual by mutableStateOf<AlertaSos?>(null)
         private set
 
-    var historico by mutableStateOf(historicoExemplo())
+    var historico by mutableStateOf<List<Trajeto>>(emptyList())
         private set
 
     // Guardam as "tarefas que esperam" para poder cancelar quando precisar
@@ -204,7 +233,7 @@ class MainViewModel : ViewModel() {
             // se um SOS tinha marcado como ALERTA, continua ALERTA
             status = if (trajeto.status == StatusTrajeto.ALERTA) StatusTrajeto.ALERTA else StatusTrajeto.SEGURO
         )
-        historico = listOf(terminado) + historico
+        db.salvarTrajeto(terminado.toFBTrajeto())
         trajetoAtual = null
     }
 
@@ -264,9 +293,19 @@ class MainViewModel : ViewModel() {
                 status = StatusTrajeto.ALERTA
             )
         }
-        historico = listOf(registro) + historico
+        db.salvarTrajeto(registro.toFBTrajeto())
         trajetoAtual = null
         sosAtual = null
         checkinPendente = false
+    }
+}
+
+class MainViewModelFactory(private val db: FBDatabase) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            return MainViewModel(db) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

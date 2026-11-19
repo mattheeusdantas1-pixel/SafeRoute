@@ -33,6 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.saferoute.db.fb.FBDatabase
+import com.example.saferoute.db.fb.toFBUser
+import com.example.saferoute.model.Usuario
 import com.example.saferoute.ui.BotaoContorno
 import com.example.saferoute.ui.CadeadoDesabilitado
 import com.example.saferoute.ui.DataField
@@ -137,6 +140,10 @@ fun RegisterPage(modifier: Modifier = Modifier) {
                     Firebase.auth.createUserWithEmailAndPassword(email.trim(), senha)
                         .addOnCompleteListener(activity) { task ->
                             if (task.isSuccessful) {
+                                // Grava o usuário no Firestore (é aqui que o telefone passa a ser guardado)
+                                FBDatabase.registrarUsuario(
+                                    Usuario(nome = nome.trim(), telefone = telefone, email = email.trim()).toFBUser()
+                                )
                                 // Guarda o nome no perfil do Firebase e só depois entra no app
                                 val perfil = userProfileChangeRequest { displayName = nome.trim() }
                                 task.result.user?.updateProfile(perfil)

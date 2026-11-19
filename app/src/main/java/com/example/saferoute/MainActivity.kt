@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.saferoute.db.fb.FBDatabase
 import com.example.saferoute.ui.nav.BottomNavBar
 import com.example.saferoute.ui.nav.BottomNavItem
 import com.example.saferoute.ui.nav.MainNavHost
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val viewModel: MainViewModel by viewModels()
+        val viewModel: MainViewModel by viewModels { MainViewModelFactory(FBDatabase()) }
 
         // Só na primeira abertura. Se a tela girar, o ViewModel já tem os dados
         // (e o nome pode ter sido editado no Perfil, não dá para sobrescrever).

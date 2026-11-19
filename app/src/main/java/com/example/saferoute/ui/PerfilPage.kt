@@ -77,7 +77,7 @@ fun PerfilPage(
     val activity = LocalActivity.current as Activity
 
     // Cópia local do nome: a pessoa digita à vontade e só vai para o ViewModel no Salvar
-    var nome by rememberSaveable { mutableStateOf(usuario.nome) }
+    var nome by rememberSaveable(usuario.nome) { mutableStateOf(usuario.nome) }
     var erro by rememberSaveable { mutableStateOf<Int?>(null) }
     // Só faz sentido salvar se o nome mudou
     val nomeMudou = nome != usuario.nome
