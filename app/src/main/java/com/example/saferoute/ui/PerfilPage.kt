@@ -1,7 +1,6 @@
 package com.example.saferoute.ui
 
 import android.app.Activity
-import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -34,9 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.saferoute.LoginActivity
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 // Uma linha com o texto à esquerda e o switch à direita.
 // A linha tem 56dp de altura (mais que os 48dp mínimos) para ficar fácil de acertar com o dedo.
@@ -178,12 +178,8 @@ fun PerfilPage(
         BotaoContorno(
             onClick = {
                 Toast.makeText(activity, R.string.conta_saiu, Toast.LENGTH_SHORT).show()
-                // NEW_TASK + CLEAR_TASK apagam todas as telas abertas e deixam só o Login.
-                // Assim o botão Voltar do celular não volta para dentro do app.
-                activity.startActivity(
-                    Intent(activity, LoginActivity::class.java)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                )
+                // Só encerra a sessão: quem leva para o Login é o ouvinte da MainActivity
+                Firebase.auth.signOut()
             },
             modifier = Modifier.padding(top = 16.dp).fillMaxWidth().height(56.dp)
         ) {

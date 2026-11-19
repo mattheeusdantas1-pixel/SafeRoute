@@ -51,6 +51,17 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Quem já está logado não vê o Login: vai direto para o app
+        if (Firebase.auth.currentUser != null) {
+            startActivity(
+                Intent(this, MainActivity::class.java)
+                    .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            )
+            finish()
+            return
+        }
+
         setContent {
             SafeRouteTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

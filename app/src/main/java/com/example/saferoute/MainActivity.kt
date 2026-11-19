@@ -1,5 +1,6 @@
 package com.example.saferoute
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,10 +24,31 @@ import com.example.saferoute.ui.nav.MainNavHost
 import com.example.saferoute.ui.nav.Route
 import com.example.saferoute.ui.theme.SafeRouteTheme
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
+    // Se a sessão acabar (Sair), volta para o Login e apaga as telas abertas
+    private val ouvinteSessao = FirebaseAuth.AuthStateListener { auth ->
+        if (auth.currentUser == null) {
+            startActivity(
+                Intent(this, LoginActivity::class.java)
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Firebase.auth.addAuthStateListener(ouvinteSessao)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Firebase.auth.removeAuthStateListener(ouvinteSessao)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
