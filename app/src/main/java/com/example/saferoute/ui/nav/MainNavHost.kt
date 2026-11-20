@@ -23,7 +23,8 @@ fun MainNavHost(
     lugarViewModel: LugarViewModel,
     modifier: Modifier = Modifier
 ) {
-    val abrirSos = { navController.navigate(Route.Sos) }
+    // Quem decide a navegação é o ViewModel; a MainActivity observa a pagina e navega
+    val abrirSos = { viewModel.pagina = Route.Sos }
 
     NavHost(navController, startDestination = Route.Inicio) {
         composable<Route.Inicio> {

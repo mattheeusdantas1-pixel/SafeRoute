@@ -12,7 +12,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -85,6 +87,34 @@ class MainActivity : ComponentActivity() {
             val entradaAtual by navController.currentBackStackEntryAsState()
             val naTelaSos = entradaAtual?.destination?.hasRoute(Route.Sos::class) == true
 
+            // Navega quando o ViewModel pede uma página diferente da que está aberta.
+            // Se já está nela (ex.: clique na barra), não faz nada.
+            LaunchedEffect(viewModel.pagina) {
+                val rota = viewModel.pagina ?: return@LaunchedEffect
+                val destino = navController.currentDestination
+                if (destino?.hasRoute(rota::class) == true) return@LaunchedEffect
+                navController.navigate(rota) {
+                    launchSingleTop = true
+                    // O SOS não limpa a pilha: ao encerrar, o popBackStack volta para a aba de onde veio
+                    if (rota !is Route.Sos) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        restoreState = true
+                    }
+                }
+            }
+
+            // Mantém a pagina igual à rota aberta (inclusive no Voltar do celular e no
+            // popBackStack do SOS). Sem isso, pedir o SOS de novo não mudaria o valor
+            // e a navegação não aconteceria.
+            LaunchedEffect(entradaAtual) {
+                val destino = entradaAtual?.destination ?: return@LaunchedEffect
+                val rotaAtual = listOf(
+                    Route.Inicio, Route.Trajeto, Route.Contatos,
+                    Route.Historico, Route.Perfil, Route.Sos
+                ).firstOrNull { destino.hasRoute(it::class) }
+                if (rotaAtual != null) viewModel.pagina = rotaAtual
+            }
+
             SafeRouteTheme {
                 Scaffold(
                     topBar = {
@@ -99,7 +129,7 @@ class MainActivity : ComponentActivity() {
                                 BottomNavItem.HistoricoButton,
                                 BottomNavItem.PerfilButton,
                             )
-                            BottomNavBar(navController = navController, items)
+                            BottomNavBar(navController = navController, viewModel = viewModel, items)
                         }
                     }
                 ) { innerPadding ->

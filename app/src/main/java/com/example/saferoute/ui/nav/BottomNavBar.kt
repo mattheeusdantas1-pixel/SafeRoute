@@ -16,12 +16,17 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.saferoute.MainViewModel
 import com.example.saferoute.ui.theme.NoitePetroleo
 import com.example.saferoute.ui.theme.VerdeAgua
 import com.example.saferoute.ui.theme.VerdeAguaProfundo
 
 @Composable
-fun BottomNavBar(navController: NavHostController, items: List<BottomNavItem>) {
+fun BottomNavBar(
+    navController: NavHostController,
+    viewModel: MainViewModel,
+    items: List<BottomNavItem>
+) {
     // Sobre a barra branca do modo claro, o Verde-água puro não dá contraste para texto
     val corTextoSelecionado = if (isSystemInDarkTheme()) VerdeAgua else VerdeAguaProfundo
     val corNormal = MaterialTheme.colorScheme.onSurfaceVariant
@@ -64,6 +69,8 @@ fun BottomNavBar(navController: NavHostController, items: List<BottomNavItem>) {
                         launchSingleTop = true
                         restoreState = true
                     }
+                    // O ViewModel também fica sabendo em qual página o app está
+                    viewModel.pagina = item.rota
                 }
             )
         }
