@@ -1,10 +1,13 @@
 package com.example.saferoute.ui
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.saferoute.api.WeatherService
+import com.example.saferoute.api.toClima
+import com.example.saferoute.model.Clima
 import com.example.saferoute.model.Localizacao
 import com.google.android.gms.maps.model.LatLng
 
@@ -63,6 +66,24 @@ class LugarViewModel(private val service: WeatherService) : ViewModel() {
     fun limparSugestoes() {
         service.cancelAll()
         sugestoes = emptyList()
+    }
+
+    // Clima atual guardado por ponto ("lat,lng"). Mapa de estado: quando muda, a tela recompõe
+    private val _clima = mutableStateMapOf<String, Clima>()
+
+    // Devolve o clima do ponto. Na primeira vez dispara a busca e devolve CARREGANDO
+    fun clima(local: Localizacao): Clima {
+        val chave = "${local.latitude},${local.longitude}"
+        return _clima.getOrPut(chave) {
+            carregarClima(chave)
+            Clima.CARREGANDO
+        }
+    }
+
+    private fun carregarClima(chave: String) {
+        service.getWeather(chave) { api ->
+            api?.let { _clima[chave] = it.toClima() }
+        }
     }
 
     override fun onCleared() {

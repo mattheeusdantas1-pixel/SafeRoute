@@ -27,7 +27,12 @@ fun MainNavHost(
 
     NavHost(navController, startDestination = Route.Inicio) {
         composable<Route.Inicio> {
-            InicioPage(modifier = modifier, viewModel = viewModel, onSosClick = abrirSos)
+            InicioPage(
+                modifier = modifier,
+                viewModel = viewModel,
+                lugarViewModel = lugarViewModel,
+                onSosClick = abrirSos
+            )
         }
         composable<Route.Trajeto> {
             TrajetoPage(

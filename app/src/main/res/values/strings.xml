@@ -126,5 +126,9 @@
     <string name="conta_erro_rede">Sem conexão. Confira a internet e tente de novo.</string>
     <string name="conta_erro_generico">Não foi possível concluir. Tente de novo.</string>
     <string name="lugar_marcador_destino">Destino</string>
+    <string name="clima_carregando">Carregando clima...</string>
+    <string name="clima_destino">Clima no destino: %1$s, %2$.0f°C</string>
+    <string name="clima_agora">Agora em Recife</string>
+    <string name="clima_agora_linha">%1$s, %2$.0f°C</string>
     <string name="lugar_erro_nome">Não foi possível descobrir o nome desse lugar. Confira a internet e tente de novo.</string>
 </resources>

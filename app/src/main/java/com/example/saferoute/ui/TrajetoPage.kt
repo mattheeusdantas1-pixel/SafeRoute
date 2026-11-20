@@ -38,11 +38,35 @@ import com.example.saferoute.MAX_ADIAMENTOS
 import com.example.saferoute.METROS_POR_MINUTO
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
+import com.example.saferoute.model.Clima
 import com.example.saferoute.model.Localizacao
 import com.example.saferoute.ui.theme.NoitePetroleo
 import com.example.saferoute.ui.theme.VerdeAgua
 import kotlinx.coroutines.delay
 import java.util.Locale
+
+// Linha de clima do destino: "Carregando..." até a resposta da API chegar
+@Composable
+private fun LinhaClima(lugarViewModel: LugarViewModel, local: Localizacao) {
+    val clima = lugarViewModel.clima(local)
+    Text(
+        text = if (clima == Clima.CARREGANDO) {
+            stringResource(R.string.clima_carregando)
+        } else {
+            stringResource(R.string.clima_destino, clima.desc, clima.temp)
+        },
+        style = MaterialTheme.typography.bodyLarge
+    )
+}
+
+// Texto do balão do marcador. Null enquanto o clima carrega (o balão fica com o endereço)
+@Composable
+private fun descricaoClima(lugarViewModel: LugarViewModel, local: Localizacao?): String? {
+    if (local == null) return null
+    val clima = lugarViewModel.clima(local)
+    if (clima == Clima.CARREGANDO) return null
+    return stringResource(R.string.clima_agora_linha, clima.desc, clima.temp)
+}
 
 // Transforma milissegundos em "mm:ss". Se for negativo (já passou), mostra 00:00
 private fun formatarTempo(ms: Long): String {
@@ -136,6 +160,7 @@ fun TrajetoPage(
                     }
                 }
             }
+            destinoLocal?.let { LinhaClima(lugarViewModel, it) }
             DataField(
                 label = stringResource(R.string.trajeto_campo_minutos),
                 value = minutos,
@@ -170,6 +195,7 @@ fun TrajetoPage(
                     .weight(1f)
                     .clip(MaterialTheme.shapes.medium),
                 destino = destinoLocal,
+                descDestino = descricaoClima(lugarViewModel, destinoLocal),
                 // Segurar o dedo no mapa descobre o nome do lugar e preenche o campo
                 aoSegurar = { ponto ->
                     lugarViewModel.nomeDoLugar(ponto) { lugar ->
@@ -232,6 +258,7 @@ fun TrajetoPage(
                                 )
                                 Text(stringResource(R.string.trajeto_decorrido, formatarTempo(decorrido)))
                                 Text(stringResource(R.string.trajeto_distancia, "%.1f".format(Locale.forLanguageTag("pt-BR"), km)))
+                                trajeto.destinoLocal?.let { LinhaClima(lugarViewModel, it) }
                             }
                             // Enfeite (por isso sem contentDescription): o texto ao lado já diz o destino
                             Box(
@@ -256,7 +283,8 @@ fun TrajetoPage(
                             .padding(top = 12.dp)
                             .height(240.dp)
                             .clip(MaterialTheme.shapes.medium),
-                        destino = trajeto.destinoLocal
+                        destino = trajeto.destinoLocal,
+                        descDestino = descricaoClima(lugarViewModel, trajeto.destinoLocal)
                     )
                 }
             }

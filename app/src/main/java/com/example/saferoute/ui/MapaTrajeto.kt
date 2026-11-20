@@ -34,6 +34,7 @@ fun MapaTrajeto(
     modifier: Modifier = Modifier,
     localizacao: Localizacao? = null,
     destino: Localizacao? = null,
+    descDestino: String? = null,
     aoSegurar: ((LatLng) -> Unit)? = null
 ) {
     val context = LocalContext.current
@@ -95,7 +96,8 @@ fun MapaTrajeto(
                 Marker(
                     state = rememberMarkerState(position = LatLng(it.latitude, it.longitude)),
                     title = tituloDestino,
-                    snippet = it.endereco
+                    // Com o clima já carregado, o balão mostra o clima no lugar do endereço
+                    snippet = descDestino ?: it.endereco
                 )
             }
         }

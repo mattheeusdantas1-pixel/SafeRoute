@@ -59,6 +59,25 @@ class WeatherService {
         })
     }
 
+    // Função genérica: serve para qualquer tipo de resposta
+    private fun <T> enqueue(call: Call<T?>, onResponse: ((T?) -> Unit)? = null) {
+        call.enqueue(object : Callback<T?> {
+            override fun onResponse(call: Call<T?>, response: Response<T?>) {
+                onResponse?.invoke(response.body())
+            }
+
+            override fun onFailure(call: Call<T?>, t: Throwable) {
+                Log.w("SafeRoute WARNING", "" + t.message)
+            }
+        })
+    }
+
+    // Clima atual de um ponto. O query pode ser "lat,lng"
+    fun getWeather(query: String, onResponse: (APICurrentWeather?) -> Unit) {
+        val call: Call<APICurrentWeather?> = weatherAPI.weather(query)
+        enqueue(call) { onResponse.invoke(it) }
+    }
+
     // Cancelar dispara onFailure, que entrega null. Quem recebe null ignora
     fun cancelAll() {
         searches.toList().forEach { it.cancel() }

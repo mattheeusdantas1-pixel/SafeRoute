@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import com.example.saferoute.MAX_CONTATOS
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
+import com.example.saferoute.model.Clima
+import com.example.saferoute.model.Localizacao
 import com.example.saferoute.ui.theme.NoitePetroleo
 import com.example.saferoute.ui.theme.SosVermelho
 import com.example.saferoute.ui.theme.VerdeAgua
@@ -48,6 +50,7 @@ import com.example.saferoute.ui.theme.VerdeAgua
 fun InicioPage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
+    lugarViewModel: LugarViewModel,
     onSosClick: () -> Unit
 ) {
     val activity = LocalActivity.current as Activity
@@ -78,6 +81,8 @@ fun InicioPage(
                     totalContatos = viewModel.contatos.size,
                     trajetoAtivo = viewModel.trajetoAtual != null
                 )
+
+                CardClima(lugarViewModel)
             }
 
             // Fora da rolagem: o SOS fica sempre embaixo, na zona do polegar
@@ -147,6 +152,34 @@ private fun BotaoSos(tamanho: Dp, onClick: () -> Unit) {
                 text = stringResource(R.string.botao_sos),
                 style = MaterialTheme.typography.displayLarge,
                 maxLines = 1
+            )
+        }
+    }
+}
+
+// A localização do app é simulada em Recife, então o clima do Início é o de Recife
+private val RECIFE = Localizacao(-8.05, -34.9, "Recife")
+
+// Clima atual de Recife. Fica na parte que rola, para o SOS não sair do lugar
+@Composable
+private fun CardClima(lugarViewModel: LugarViewModel) {
+    val clima = lugarViewModel.clima(RECIFE)
+    Card(modifier = Modifier.fillMaxWidth(), colors = coresCard()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.clima_agora),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = if (clima == Clima.CARREGANDO) {
+                    stringResource(R.string.clima_carregando)
+                } else {
+                    stringResource(R.string.clima_agora_linha, clima.desc, clima.temp)
+                },
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }

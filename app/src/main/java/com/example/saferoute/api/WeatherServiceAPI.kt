@@ -15,4 +15,7 @@ interface WeatherServiceAPI {
     // O q aceita nome ("Recife") ou coordenadas ("-8.05,-34.9")
     @GET("search.json?key=$API_KEY&lang=pt_br")
     fun search(@Query("q") query: String): Call<List<APILocation>?>
+
+    @GET("current.json?key=$API_KEY&lang=pt")
+    fun weather(@Query("q") query: String): Call<APICurrentWeather?>
 }
