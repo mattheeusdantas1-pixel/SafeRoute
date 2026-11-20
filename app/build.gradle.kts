@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -21,6 +23,18 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // A chave da WeatherAPI vem do local.properties, que não vai para o Git
+        val props = Properties()
+        val arquivoChaves = rootProject.file("local.properties")
+        if (arquivoChaves.exists()) {
+            arquivoChaves.inputStream().use { props.load(it) }
+        }
+        buildConfigField(
+            "String",
+            "WEATHER_API_KEY",
+            props.getProperty("WEATHER_API_KEY") ?: "\"\""
+        )
     }
 
     buildTypes {
@@ -37,6 +51,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -65,6 +80,10 @@ dependencies {
 
     // Prática 06: Firestore
     implementation("com.google.firebase:firebase-firestore")
+
+    // Prática 07: Retrofit
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
