@@ -130,5 +130,6 @@
     <string name="clima_destino">Clima no destino: %1$s, %2$.0f°C</string>
     <string name="clima_agora">Agora em Recife</string>
     <string name="clima_agora_linha">%1$s, %2$.0f°C</string>
+    <string name="clima_previsao">Previsão do destino</string>
     <string name="lugar_erro_nome">Não foi possível descobrir o nome desse lugar. Confira a internet e tente de novo.</string>
 </resources>

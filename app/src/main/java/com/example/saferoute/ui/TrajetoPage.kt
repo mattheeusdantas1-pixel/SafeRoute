@@ -160,7 +160,24 @@ fun TrajetoPage(
                     }
                 }
             }
-            destinoLocal?.let { LinhaClima(lugarViewModel, it) }
+            destinoLocal?.let { local ->
+                LinhaClima(lugarViewModel, local)
+                // Faixa com os próximos dias. Lista vazia (carregando ou sem dados): não mostra nada
+                val previsoes = lugarViewModel.previsao(local)
+                if (!previsoes.isNullOrEmpty()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = stringResource(R.string.clima_previsao),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            previsoes.take(3).forEach { dia ->
+                                PrevisaoItem(dia, Modifier.weight(1f))
+                            }
+                        }
+                    }
+                }
+            }
             DataField(
                 label = stringResource(R.string.trajeto_campo_minutos),
                 value = minutos,

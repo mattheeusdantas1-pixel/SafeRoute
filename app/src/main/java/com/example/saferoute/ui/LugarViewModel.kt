@@ -7,8 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.saferoute.api.WeatherService
 import com.example.saferoute.api.toClima
+import com.example.saferoute.api.toPrevisao
 import com.example.saferoute.model.Clima
 import com.example.saferoute.model.Localizacao
+import com.example.saferoute.model.Previsao
 import com.google.android.gms.maps.model.LatLng
 
 // Guarda a conversa com a API de lugares fora da tela
@@ -83,6 +85,24 @@ class LugarViewModel(private val service: WeatherService) : ViewModel() {
     private fun carregarClima(chave: String) {
         service.getWeather(chave) { api ->
             api?.let { _clima[chave] = it.toClima() }
+        }
+    }
+
+    private val _previsao = mutableStateMapOf<String, List<Previsao>?>()
+
+    // Lista vazia enquanto carrega. Quando chega, o mapa de estado muda e a tela recompõe
+    fun previsao(local: Localizacao): List<Previsao>? {
+        val chave = "${local.latitude},${local.longitude}"
+        return _previsao.getOrPut(chave) {
+            carregarPrevisao(chave)
+            emptyList()
+        }
+    }
+
+    private fun carregarPrevisao(chave: String) {
+        service.getForecast(chave) { api ->
+            // Se a API não trouxe dias, guarda lista vazia: com null o getOrPut buscaria de novo
+            api?.let { _previsao[chave] = it.toPrevisao() ?: emptyList() }
         }
     }
 

@@ -18,4 +18,8 @@ interface WeatherServiceAPI {
 
     @GET("current.json?key=$API_KEY&lang=pt")
     fun weather(@Query("q") query: String): Call<APICurrentWeather?>
+
+    // days=3 porque o plano gratuito costuma limitar a 3 dias
+    @GET("forecast.json?key=$API_KEY&days=3&lang=pt")
+    fun forecast(@Query("q") query: String): Call<APIWeatherForecast?>
 }

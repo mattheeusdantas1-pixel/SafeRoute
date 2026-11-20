@@ -78,6 +78,12 @@ class WeatherService {
         enqueue(call) { onResponse.invoke(it) }
     }
 
+    // Previsão dos próximos dias de um ponto. O query pode ser "lat,lng"
+    fun getForecast(query: String, onResponse: (APIWeatherForecast?) -> Unit) {
+        val call: Call<APIWeatherForecast?> = weatherAPI.forecast(query)
+        enqueue(call) { onResponse.invoke(it) }
+    }
+
     // Cancelar dispara onFailure, que entrega null. Quem recebe null ignora
     fun cancelAll() {
         searches.toList().forEach { it.cancel() }
