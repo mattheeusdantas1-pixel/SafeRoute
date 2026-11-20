@@ -3,15 +3,19 @@ package com.example.saferoute.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.example.saferoute.R
 import com.example.saferoute.model.Previsao
 import kotlin.math.roundToInt
 
@@ -30,6 +34,14 @@ fun PrevisaoItem(previsao: Previsao, modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Ícone do clima em cima. Sem rede ou durante o download, mostra o "loading"
+            AsyncImage(
+                model = previsao.imgUrl,
+                modifier = Modifier.size(36.dp),
+                placeholder = painterResource(id = R.drawable.loading),
+                error = painterResource(id = R.drawable.loading),
+                contentDescription = previsao.desc
+            )
             Text(text = dia, style = MaterialTheme.typography.titleMedium)
             Text(
                 text = previsao.desc,

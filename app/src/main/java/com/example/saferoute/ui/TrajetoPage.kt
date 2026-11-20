@@ -31,9 +31,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.saferoute.MAX_ADIAMENTOS
 import com.example.saferoute.METROS_POR_MINUTO
 import com.example.saferoute.MainViewModel
@@ -49,14 +51,28 @@ import java.util.Locale
 @Composable
 private fun LinhaClima(lugarViewModel: LugarViewModel, local: Localizacao) {
     val clima = lugarViewModel.clima(local)
-    Text(
-        text = if (clima == Clima.CARREGANDO) {
-            stringResource(R.string.clima_carregando)
-        } else {
-            stringResource(R.string.clima_destino, clima.desc, clima.temp)
-        },
-        style = MaterialTheme.typography.bodyLarge
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Enquanto carrega, imgUrl é "CARREGANDO" (URL inválida): o Coil cai no "loading"
+        AsyncImage(
+            model = clima.imgUrl,
+            modifier = Modifier.size(32.dp),
+            placeholder = painterResource(id = R.drawable.loading),
+            error = painterResource(id = R.drawable.loading),
+            contentDescription = clima.desc
+        )
+        Text(
+            text = if (clima == Clima.CARREGANDO) {
+                stringResource(R.string.clima_carregando)
+            } else {
+                stringResource(R.string.clima_destino, clima.desc, clima.temp)
+            },
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+    }
 }
 
 // Texto do balão do marcador. Null enquanto o clima carrega (o balão fica com o endereço)

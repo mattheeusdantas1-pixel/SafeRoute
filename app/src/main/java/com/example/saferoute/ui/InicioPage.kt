@@ -33,10 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.saferoute.MAX_CONTATOS
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
@@ -173,14 +175,27 @@ private fun CardClima(lugarViewModel: LugarViewModel) {
                 text = stringResource(R.string.clima_agora),
                 style = MaterialTheme.typography.titleMedium
             )
-            Text(
-                text = if (clima == Clima.CARREGANDO) {
-                    stringResource(R.string.clima_carregando)
-                } else {
-                    stringResource(R.string.clima_agora_linha, clima.desc, clima.temp)
-                },
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                AsyncImage(
+                    model = clima.imgUrl,
+                    modifier = Modifier.size(40.dp),
+                    placeholder = painterResource(id = R.drawable.loading),
+                    error = painterResource(id = R.drawable.loading),
+                    contentDescription = clima.desc
+                )
+                Text(
+                    text = if (clima == Clima.CARREGANDO) {
+                        stringResource(R.string.clima_carregando)
+                    } else {
+                        stringResource(R.string.clima_agora_linha, clima.desc, clima.temp)
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
