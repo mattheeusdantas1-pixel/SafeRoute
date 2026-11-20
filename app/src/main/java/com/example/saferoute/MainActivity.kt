@@ -18,7 +18,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.saferoute.api.WeatherService
 import com.example.saferoute.db.fb.FBDatabase
+import com.example.saferoute.ui.LugarViewModel
+import com.example.saferoute.ui.LugarViewModelFactory
 import com.example.saferoute.ui.nav.BottomNavBar
 import com.example.saferoute.ui.nav.BottomNavItem
 import com.example.saferoute.ui.nav.MainNavHost
@@ -54,6 +57,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val viewModel: MainViewModel by viewModels { MainViewModelFactory(FBDatabase()) }
+        // Mesmo padrão do MainViewModel: criado aqui e passado para baixo
+        val lugarViewModel: LugarViewModel by viewModels {
+            LugarViewModelFactory(WeatherService())
+        }
 
         // Só na primeira abertura. Se a tela girar, o ViewModel já tem os dados
         // (e o nome pode ter sido editado no Perfil, não dá para sobrescrever).
@@ -97,7 +104,11 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        MainNavHost(navController = navController, viewModel = viewModel)
+                        MainNavHost(
+                            navController = navController,
+                            viewModel = viewModel,
+                            lugarViewModel = lugarViewModel
+                        )
                     }
                 }
             }

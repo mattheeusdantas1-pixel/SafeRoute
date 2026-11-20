@@ -174,7 +174,11 @@ class MainViewModel(private val db: FBDatabase) : ViewModel(), FBDatabase.Listen
     private var jobSos: Job? = null
 
     // RF09, RF29, RN09: começa um trajeto. Devolve null se deu certo, ou o id do erro
-    fun iniciarTrajeto(destino: String, previsaoChegada: Long): Int? {
+    fun iniciarTrajeto(
+        destino: String,
+        previsaoChegada: Long,
+        destinoLocal: Localizacao? = null
+    ): Int? {
         val agora = System.currentTimeMillis()
         val erro = when {
             trajetoAtual != null -> R.string.erro_trajeto_ja_ativo
@@ -185,7 +189,8 @@ class MainViewModel(private val db: FBDatabase) : ViewModel(), FBDatabase.Listen
             trajetoAtual = Trajeto(
                 inicio = agora,
                 previsaoChegada = previsaoChegada,
-                destino = destino.trim().ifBlank { null }
+                destino = destino.trim().ifBlank { null },
+                destinoLocal = destinoLocal
             )
             agendarCheckin()
         }

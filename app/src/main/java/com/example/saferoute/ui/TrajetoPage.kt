@@ -37,6 +37,7 @@ import com.example.saferoute.MAX_ADIAMENTOS
 import com.example.saferoute.METROS_POR_MINUTO
 import com.example.saferoute.MainViewModel
 import com.example.saferoute.R
+import com.example.saferoute.model.Localizacao
 import com.example.saferoute.ui.theme.NoitePetroleo
 import com.example.saferoute.ui.theme.VerdeAgua
 import kotlinx.coroutines.delay
@@ -52,11 +53,14 @@ private fun formatarTempo(ms: Long): String {
 fun TrajetoPage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
+    lugarViewModel: LugarViewModel,
     onSosClick: () -> Unit
 ) {
     val trajeto = viewModel.trajetoAtual
 
     var destino by rememberSaveable { mutableStateOf("") }
+    // Onde o destino fica no mapa. Só em memória: se a tela for recriada, o app procura de novo ao iniciar
+    var destinoLocal by remember { mutableStateOf<Localizacao?>(null) }
     var minutos by rememberSaveable { mutableStateOf("30") }   // RN12: sugestão de 30 min
     var erro by rememberSaveable { mutableStateOf<Int?>(null) }
 
@@ -98,7 +102,8 @@ fun TrajetoPage(
             DataField(
                 label = stringResource(R.string.trajeto_campo_destino),
                 value = destino,
-                onValueChange = { destino = it; erro = null },
+                // Texto editado à mão: o marcador antigo não vale mais
+                onValueChange = { destino = it; destinoLocal = null; erro = null },
                 modifier = Modifier.fillMaxWidth()
             )
             DataField(
@@ -112,7 +117,15 @@ fun TrajetoPage(
             Button(
                 onClick = {
                     val previsao = System.currentTimeMillis() + (minutos.toLongOrNull() ?: 0L) * 60_000L
-                    erro = viewModel.iniciarTrajeto(destino, previsao)
+                    if (destino.isNotBlank() && destinoLocal == null) {
+                        // Digitou mas não escolheu no mapa: procura o lugar. Se não achar
+                        // (lugar nulo), o trajeto começa do mesmo jeito, só sem marcador
+                        lugarViewModel.resolverDestino(destino.trim()) { lugar ->
+                            erro = viewModel.iniciarTrajeto(destino, previsao, lugar)
+                        }
+                    } else {
+                        erro = viewModel.iniciarTrajeto(destino, previsao, destinoLocal)
+                    }
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 colors = coresBotaoPositivo()
@@ -124,7 +137,20 @@ fun TrajetoPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .clip(MaterialTheme.shapes.medium)
+                    .clip(MaterialTheme.shapes.medium),
+                destino = destinoLocal,
+                // Segurar o dedo no mapa descobre o nome do lugar e preenche o campo
+                aoSegurar = { ponto ->
+                    lugarViewModel.nomeDoLugar(ponto) { lugar ->
+                        if (lugar != null) {
+                            destino = lugar.endereco ?: ""
+                            destinoLocal = lugar
+                            erro = null
+                        } else {
+                            erro = R.string.lugar_erro_nome
+                        }
+                    }
+                }
             )
         } else {
             // Tem trajeto: mostra os tempos
@@ -198,7 +224,8 @@ fun TrajetoPage(
                             .fillMaxWidth()
                             .padding(top = 12.dp)
                             .height(240.dp)
-                            .clip(MaterialTheme.shapes.medium)
+                            .clip(MaterialTheme.shapes.medium),
+                        destino = trajeto.destinoLocal
                     )
                 }
             }

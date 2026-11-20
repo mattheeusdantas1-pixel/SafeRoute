@@ -9,6 +9,7 @@ import com.example.saferoute.MainViewModel
 import com.example.saferoute.ui.ContatosPage
 import com.example.saferoute.ui.HistoricoPage
 import com.example.saferoute.ui.InicioPage
+import com.example.saferoute.ui.LugarViewModel
 import com.example.saferoute.ui.PerfilPage
 import com.example.saferoute.ui.SosPage
 import com.example.saferoute.ui.TrajetoPage
@@ -19,6 +20,7 @@ import com.example.saferoute.ui.TrajetoPage
 fun MainNavHost(
     navController: NavHostController,
     viewModel: MainViewModel,
+    lugarViewModel: LugarViewModel,
     modifier: Modifier = Modifier
 ) {
     val abrirSos = { navController.navigate(Route.Sos) }
@@ -27,7 +29,14 @@ fun MainNavHost(
         composable<Route.Inicio> {
             InicioPage(modifier = modifier, viewModel = viewModel, onSosClick = abrirSos)
         }
-        composable<Route.Trajeto> { TrajetoPage(modifier = modifier, viewModel = viewModel, onSosClick = abrirSos) }
+        composable<Route.Trajeto> {
+            TrajetoPage(
+                modifier = modifier,
+                viewModel = viewModel,
+                lugarViewModel = lugarViewModel,
+                onSosClick = abrirSos
+            )
+        }
         composable<Route.Contatos> { ContatosPage(modifier = modifier, viewModel = viewModel) }
         composable<Route.Historico> { HistoricoPage(modifier = modifier, viewModel = viewModel) }
         composable<Route.Perfil> { PerfilPage(modifier = modifier, viewModel = viewModel) }

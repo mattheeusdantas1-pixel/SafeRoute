@@ -7,12 +7,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import com.example.saferoute.R
 import com.example.saferoute.model.Localizacao
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -29,9 +32,13 @@ import com.google.maps.android.compose.rememberMarkerState
 @Composable
 fun MapaTrajeto(
     modifier: Modifier = Modifier,
-    localizacao: Localizacao? = null
+    localizacao: Localizacao? = null,
+    destino: Localizacao? = null,
+    aoSegurar: ((LatLng) -> Unit)? = null
 ) {
     val context = LocalContext.current
+    // Marker não é @Composable de texto, então o texto é lido aqui fora
+    val tituloDestino = stringResource(R.string.lugar_marcador_destino)
 
     // O mapa em si não precisa de permissão. Ela só serve para o ponto azul da posição da pessoa
     var temPermissao by remember {
@@ -61,11 +68,19 @@ fun MapaTrajeto(
         }
     }
 
+    // Quando o destino muda (digitado, sugerido ou escolhido no mapa), a câmera vai até ele
+    LaunchedEffect(destino) {
+        destino?.let {
+            camera.animate(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), 15f))
+        }
+    }
+
     GoogleMap(
         modifier = modifier,
         cameraPositionState = camera,
         properties = MapProperties(isMyLocationEnabled = temPermissao),
-        uiSettings = MapUiSettings(myLocationButtonEnabled = temPermissao)
+        uiSettings = MapUiSettings(myLocationButtonEnabled = temPermissao),
+        onMapLongClick = { aoSegurar?.invoke(it) }
     ) {
         localizacao?.let {
             Marker(
@@ -73,6 +88,16 @@ fun MapaTrajeto(
                 title = "SOS",
                 snippet = it.endereco
             )
+        }
+        destino?.let {
+            // key faz um estado novo de marcador a cada destino, senão ele ficaria na posição antiga
+            key(it.latitude, it.longitude) {
+                Marker(
+                    state = rememberMarkerState(position = LatLng(it.latitude, it.longitude)),
+                    title = tituloDestino,
+                    snippet = it.endereco
+                )
+            }
         }
     }
 }

@@ -13,5 +13,7 @@ data class Trajeto(
     val fim: Long? = null,
     val destino: String? = null,
     val distanciaMetros: Double = 0.0,
-    val status: StatusTrajeto = StatusTrajeto.EM_ANDAMENTO
+    val status: StatusTrajeto = StatusTrajeto.EM_ANDAMENTO,
+    // Só em memória: o Firestore guarda apenas o nome do destino
+    val destinoLocal: Localizacao? = null
 )

@@ -125,4 +125,6 @@
     <string name="conta_email_info">O e-mail não pode ser alterado</string>
     <string name="conta_erro_rede">Sem conexão. Confira a internet e tente de novo.</string>
     <string name="conta_erro_generico">Não foi possível concluir. Tente de novo.</string>
+    <string name="lugar_marcador_destino">Destino</string>
+    <string name="lugar_erro_nome">Não foi possível descobrir o nome desse lugar. Confira a internet e tente de novo.</string>
 </resources>
