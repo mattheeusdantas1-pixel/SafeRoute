@@ -20,6 +20,7 @@ import com.example.saferoute.model.Localizacao
 import com.example.saferoute.model.StatusTrajeto
 import com.example.saferoute.model.Trajeto
 import com.example.saferoute.model.Usuario
+import com.example.saferoute.ui.nav.Route
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -168,6 +169,11 @@ class MainViewModel(private val db: FBDatabase) : ViewModel(), FBDatabase.Listen
 
     var historico by mutableStateOf<List<Trajeto>>(emptyList())
         private set
+
+    // Página que deve estar aberta. A MainActivity observa e navega.
+    // Ela também acompanha a rota atual: assim, pedir o SOS de novo sempre
+    // muda o valor e dispara a navegação.
+    var pagina by mutableStateOf<Route?>(null)
 
     // Guardam as "tarefas que esperam" para poder cancelar quando precisar
     private var jobCheckin: Job? = null
