@@ -1,6 +1,7 @@
 package com.example.saferoute.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,7 +83,10 @@ fun TrajetoPage(
     if (viewModel.checkinPendente && trajeto != null) {
         CheckinDialog(
             podeAdiar = trajeto.adiamentos < MAX_ADIAMENTOS,
-            onCheguei = { viewModel.encerrarTrajeto() },
+            onCheguei = {
+                lugarViewModel.limparSugestoes()
+                viewModel.encerrarTrajeto()
+            },
             onAdiar = { erro = viewModel.adiarChegada() }
         )
     }
@@ -103,9 +107,35 @@ fun TrajetoPage(
                 label = stringResource(R.string.trajeto_campo_destino),
                 value = destino,
                 // Texto editado à mão: o marcador antigo não vale mais
-                onValueChange = { destino = it; destinoLocal = null; erro = null },
+                onValueChange = {
+                    destino = it
+                    destinoLocal = null
+                    erro = null
+                    lugarViewModel.buscar(it)
+                },
                 modifier = Modifier.fillMaxWidth()
             )
+            // Sugestões em Column com forEach (não LazyColumn), por causa da rolagem da tela
+            if (lugarViewModel.sugestoes.isNotEmpty()) {
+                Card(modifier = Modifier.fillMaxWidth(), colors = coresCard()) {
+                    Column {
+                        lugarViewModel.sugestoes.take(4).forEach { lugar ->
+                            Text(
+                                text = lugar.endereco ?: "",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        destino = lugar.endereco ?: ""
+                                        destinoLocal = lugar
+                                        lugarViewModel.limparSugestoes()
+                                    }
+                                    .padding(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
             DataField(
                 label = stringResource(R.string.trajeto_campo_minutos),
                 value = minutos,
@@ -116,6 +146,7 @@ fun TrajetoPage(
             MensagemErro(erro)
             Button(
                 onClick = {
+                    lugarViewModel.limparSugestoes()
                     val previsao = System.currentTimeMillis() + (minutos.toLongOrNull() ?: 0L) * 60_000L
                     if (destino.isNotBlank() && destinoLocal == null) {
                         // Digitou mas não escolheu no mapa: procura o lugar. Se não achar
@@ -231,7 +262,10 @@ fun TrajetoPage(
             }
             MensagemErro(erro)
             Button(
-                onClick = { viewModel.encerrarTrajeto() },
+                onClick = {
+                    lugarViewModel.limparSugestoes()
+                    viewModel.encerrarTrajeto()
+                },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 colors = coresBotaoPositivo()
             ) {

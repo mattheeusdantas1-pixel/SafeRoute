@@ -1,5 +1,8 @@
 package com.example.saferoute.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.saferoute.api.WeatherService
 import com.example.saferoute.model.Localizacao
@@ -28,6 +31,38 @@ class LugarViewModel(private val service: WeatherService) : ViewModel() {
                 onResponse(null)
             }
         }
+    }
+
+    // Sugestões da busca enquanto a pessoa digita
+    var sugestoes by mutableStateOf<List<Localizacao>>(emptyList())
+        private set
+
+    fun buscar(texto: String) {
+        // Cancela a busca anterior para uma resposta velha não sobrescrever a nova
+        service.cancelAll()
+        if (texto.length < 3) {
+            sugestoes = emptyList()
+            return
+        }
+        service.search(texto) { res ->
+            // null é busca cancelada ou falha: mantém as sugestões como estavam
+            res?.let { lista ->
+                sugestoes = lista.mapNotNull { item ->
+                    val lat = item.lat
+                    val lon = item.lon
+                    val nome = item.name
+                    if (lat != null && lon != null && nome != null) {
+                        // Nome e região, para diferenciar cidades com o mesmo nome
+                        Localizacao(lat, lon, listOfNotNull(nome, item.region).joinToString(", "))
+                    } else null
+                }
+            }
+        }
+    }
+
+    fun limparSugestoes() {
+        service.cancelAll()
+        sugestoes = emptyList()
     }
 
     override fun onCleared() {
