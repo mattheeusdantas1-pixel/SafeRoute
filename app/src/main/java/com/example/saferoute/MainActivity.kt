@@ -61,7 +61,8 @@ class MainActivity : ComponentActivity() {
         val viewModel: MainViewModel by viewModels { MainViewModelFactory(FBDatabase()) }
         // Mesmo padrão do MainViewModel: criado aqui e passado para baixo
         val lugarViewModel: LugarViewModel by viewModels {
-            LugarViewModelFactory(WeatherService())
+            // applicationContext: não segura a tela na memória como a Activity seguraria
+            LugarViewModelFactory(WeatherService(applicationContext))
         }
 
         // Só na primeira abertura. Se a tela girar, o ViewModel já tem os dados

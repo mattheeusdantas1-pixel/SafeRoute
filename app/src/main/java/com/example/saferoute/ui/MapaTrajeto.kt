@@ -2,6 +2,7 @@ package com.example.saferoute.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -15,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.scale
 import com.example.saferoute.R
 import com.example.saferoute.model.Localizacao
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -35,6 +38,7 @@ fun MapaTrajeto(
     localizacao: Localizacao? = null,
     destino: Localizacao? = null,
     descDestino: String? = null,
+    iconeDestino: Bitmap? = null,
     aoSegurar: ((LatLng) -> Unit)? = null
 ) {
     val context = LocalContext.current
@@ -93,8 +97,14 @@ fun MapaTrajeto(
         destino?.let {
             // key faz um estado novo de marcador a cada destino, senão ele ficaria na posição antiga
             key(it.latitude, it.longitude) {
+                // Dentro do GoogleMap o mapa já iniciou, então o BitmapDescriptorFactory é seguro.
+                // Sem bitmap (ainda baixando ou sem rede), icon = null mantém o pino padrão
+                val icone = iconeDestino?.let { bmp ->
+                    BitmapDescriptorFactory.fromBitmap(bmp.scale(120, 120))
+                }
                 Marker(
                     state = rememberMarkerState(position = LatLng(it.latitude, it.longitude)),
+                    icon = icone,
                     title = tituloDestino,
                     // Com o clima já carregado, o balão mostra o clima no lugar do endereço
                     snippet = descDestino ?: it.endereco

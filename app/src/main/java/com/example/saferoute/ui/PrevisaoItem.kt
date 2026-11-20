@@ -40,7 +40,8 @@ fun PrevisaoItem(previsao: Previsao, modifier: Modifier = Modifier) {
                 modifier = Modifier.size(36.dp),
                 placeholder = painterResource(id = R.drawable.loading),
                 error = painterResource(id = R.drawable.loading),
-                contentDescription = previsao.desc
+                // null: o texto logo abaixo já descreve o clima, o leitor de tela não repete
+                contentDescription = null
             )
             Text(text = dia, style = MaterialTheme.typography.titleMedium)
             Text(

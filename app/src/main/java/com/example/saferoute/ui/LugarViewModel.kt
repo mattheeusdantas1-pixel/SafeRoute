@@ -84,7 +84,20 @@ class LugarViewModel(private val service: WeatherService) : ViewModel() {
 
     private fun carregarClima(chave: String) {
         service.getWeather(chave) { api ->
-            api?.let { _clima[chave] = it.toClima() }
+            api?.let {
+                _clima[chave] = it.toClima()
+                carregarBitmap(chave)
+            }
+        }
+    }
+
+    // Baixa o ícone como Bitmap para o marcador do mapa
+    private fun carregarBitmap(chave: String) {
+        _clima[chave]?.let { clima ->
+            service.getBitmap(clima.imgUrl) { bitmap ->
+                // copy cria uma cópia trocando só o bitmap; a mudança no mapa recompõe a tela
+                if (bitmap != null) _clima[chave] = clima.copy(bitmap = bitmap)
+            }
         }
     }
 

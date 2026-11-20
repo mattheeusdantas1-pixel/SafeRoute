@@ -1,5 +1,6 @@
 package com.example.saferoute.ui
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -82,6 +83,15 @@ private fun descricaoClima(lugarViewModel: LugarViewModel, local: Localizacao?):
     val clima = lugarViewModel.clima(local)
     if (clima == Clima.CARREGANDO) return null
     return stringResource(R.string.clima_agora_linha, clima.desc, clima.temp)
+}
+
+// Ícone do clima como Bitmap para o marcador. Null enquanto carrega: o mapa mostra o pino padrão
+@Composable
+private fun iconeClima(lugarViewModel: LugarViewModel, local: Localizacao?): Bitmap? {
+    if (local == null) return null
+    val clima = lugarViewModel.clima(local)
+    if (clima == Clima.CARREGANDO) return null
+    return clima.bitmap
 }
 
 // Transforma milissegundos em "mm:ss". Se for negativo (já passou), mostra 00:00
@@ -229,6 +239,7 @@ fun TrajetoPage(
                     .clip(MaterialTheme.shapes.medium),
                 destino = destinoLocal,
                 descDestino = descricaoClima(lugarViewModel, destinoLocal),
+                iconeDestino = iconeClima(lugarViewModel, destinoLocal),
                 // Segurar o dedo no mapa descobre o nome do lugar e preenche o campo
                 aoSegurar = { ponto ->
                     lugarViewModel.nomeDoLugar(ponto) { lugar ->
@@ -317,7 +328,8 @@ fun TrajetoPage(
                             .height(240.dp)
                             .clip(MaterialTheme.shapes.medium),
                         destino = trajeto.destinoLocal,
-                        descDestino = descricaoClima(lugarViewModel, trajeto.destinoLocal)
+                        descDestino = descricaoClima(lugarViewModel, trajeto.destinoLocal),
+                        iconeDestino = iconeClima(lugarViewModel, trajeto.destinoLocal)
                     )
                 }
             }
